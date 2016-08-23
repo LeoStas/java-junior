@@ -4,27 +4,31 @@ import java.util.Objects;
 
 public class Logger {
     public static void log(int message) {
-        System.out.println("primitive: " + message);
+        printer("primitive: " + message);
     }
 
     public static void log(byte message) {
-        System.out.println("primitive: " + message);
+        printer("primitive: " + message);
     }
 
     public static void log(char message) {
-        System.out.println("char: " + message);
+        printer("char: " + message);
     }
 
     public static void log(String message) {
-        System.out.println("string: " + message);
+        printer("string: " + message);
     }
 
     public static void log(boolean message) {
-        System.out.println("primitive: " + message);
+        printer("primitive: " + message);
     }
 
     public static void log(Object message) {
-        System.out.println("reference: " + message);
+        printer("reference: " + message);
+    }
+
+    private static void printer(String input){
+        System.out.println(input);
     }
 
 }
