@@ -32,7 +32,8 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
 
         //region then
         assertSysoutContains("primitive: ");
-        assertSysoutEquals("primitive: 1\nprimitive: 0\nprimitive: -1\n");
+        assertSysoutEquals("primitive: 1" + System.lineSeparator() +
+                "primitive: 0" + System.lineSeparator() + "primitive: -1" + System.lineSeparator());
         //endregion
     }
 
@@ -52,8 +53,8 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         //endregion
     }
 
-    /*
-    TODO: implement Logger solution to match specification as tests
+
+    // TODO: implement Logger solution to match specification as tests
 
     @Test
     public void shouldLogChar() throws IOException {
@@ -69,6 +70,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         //endregion
     }
 
+/*
     @Test
     public void shouldLogString() throws IOException {
         //region when
