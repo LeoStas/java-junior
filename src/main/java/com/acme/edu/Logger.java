@@ -26,6 +26,8 @@ public class Logger {
         sum_byte = 0;
         cur_string = "";
         cntr = 0;
+        buffer = "";
+        state = State.NO_STATE;
     }
 
     private static String stateToString(State state) {
@@ -48,16 +50,14 @@ public class Logger {
     private static void changeState(State newState) {
         if (state != State.NO_STATE && state != newState) {
             flush();
-            buffer = stateToString(newState);
             clearAll();
         }
         state = newState;
     }
 
     private static void flush() {
-        printer(buffer);
+        printer(stateToString(state) + buffer);
         buffer = "";
-        clearAll();
     }
 
     public static void log(int message) {
@@ -69,58 +69,57 @@ public class Logger {
         } else {
             sum_int += message;
         }
-        buffer = buffer.concat("" + sum_int);
+        buffer = Integer.toString(sum_int);
     }
 
     public static void closeLogSession() {
         flush();
+        clearAll();
     }
-
-
 
     public static void log(byte message) {
         changeState(State.BYTE_STATE);
         boolean overflow = Byte.MAX_VALUE - sum_byte < message;
         if (overflow) {
-            buffer = buffer.concat("" + sum_byte);
             flush();
             sum_byte = Byte.MAX_VALUE;
         } else {
             sum_byte += message;
         }
+        buffer = Byte.toString(sum_byte);
     }
 
     public static void log(char message) {
         changeState(State.CHAR_STATE);
-        buffer = buffer.concat("" + message);
+        buffer = Character.toString(message);
         flush();
+        clearAll();
     }
 
     public static void log(String message) {
         changeState(State.STRING_STATE);
-        ++cntr;
-        if (!cur_string.equals(message)) {
-            if (cntr > 1) {
-                buffer = buffer.concat(message + " (x" + cntr + ")");
-            } else {
-                buffer = buffer.concat(message);
-            }
+        if (!cur_string.isEmpty() && !cur_string.equals(message)) {
             flush();
+            cntr = 0;
         }
+        ++cntr;
         cur_string = message;
-
+        String numStr = cntr > 1 ? " (x" + cntr + ")" : "";
+        buffer = cur_string + numStr;
     }
 
     public static void log(boolean message) {
         changeState(State.BOOLEAN_STATE);
-        buffer = buffer.concat("" + message);
+        buffer = Boolean.toString(message);
         flush();
+        clearAll();
     }
 
     public static void log(Object message) {
         changeState(State.OBJECT_STATE);
-        buffer = buffer.concat("" + message);
+        buffer = message.toString();
         flush();
+        clearAll();
     }
 
     private static void printer(String input){

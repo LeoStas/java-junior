@@ -28,12 +28,11 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         Logger.log(1);
         Logger.log(0);
         Logger.log(-1);
+        Logger.closeLogSession();
         //endregion
 
         //region then
-        assertSysoutContains("primitive: ");
-        assertSysoutEquals("primitive: 1" + System.lineSeparator() +
-                "primitive: 0" + System.lineSeparator() + "primitive: -1" + System.lineSeparator());
+        assertSysoutContains("primitive: 0");
         //endregion
     }
 
@@ -43,24 +42,20 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         Logger.log((byte)1);
         Logger.log((byte)0);
         Logger.log((byte)-1);
+        Logger.closeLogSession();
         //endregion
 
         //region then
-        assertSysoutContains("primitive: ");
-        assertSysoutContains("1");
-        assertSysoutContains("0");
-        assertSysoutContains("-1");
+        assertSysoutContains("primitive: 0");
         //endregion
     }
-
-
-    // TODO: implement Logger solution to match specification as tests
 
     @Test
     public void shouldLogChar() throws IOException {
         //region when
         Logger.log('a');
         Logger.log('b');
+        Logger.closeLogSession();
         //endregion
 
         //region then
@@ -76,6 +71,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         //region when
         Logger.log("test string 1");
         Logger.log("other str");
+        Logger.closeLogSession();
         //endregion
 
         //region then
@@ -90,6 +86,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         //region when
         Logger.log(true);
         Logger.log(false);
+        Logger.closeLogSession();
         //endregion
 
         //region then
@@ -103,6 +100,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
     public void shouldLogReference() throws IOException {
         //region when
         Logger.log(new Object());
+        Logger.closeLogSession();
         //endregion
 
         //region then
