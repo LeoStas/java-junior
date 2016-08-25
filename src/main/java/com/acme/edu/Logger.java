@@ -1,8 +1,6 @@
 package com.acme.edu;
 
-import java.util.Objects;
-
-enum State
+enum Type
 {
     NO_STATE,
     INT_STATE,
@@ -18,7 +16,7 @@ public class Logger {
     private static byte sum_byte;
     private static String cur_string = "";
     private static int cntr;
-    private static State state = State.NO_STATE;
+    private static Decorator inDecorator = new NoDecorator();
     private static String buffer = "";
 
     private static void clearAll() {
@@ -27,41 +25,25 @@ public class Logger {
         cur_string = "";
         cntr = 0;
         buffer = "";
-        state = State.NO_STATE;
+        inDecorator = new NoDecorator();
     }
 
-    private static String stateToString(State state) {
-        switch (state) {
-            case BYTE_STATE:
-            case INT_STATE:
-            case BOOLEAN_STATE:
-                return "primitive: ";
-            case STRING_STATE:
-                return "string: ";
-            case OBJECT_STATE:
-                return "reference: ";
-            case CHAR_STATE:
-                return "char: ";
-            default:
-                return "";
-        }
-    }
-
-    private static void changeState(State newState) {
-        if (state != State.NO_STATE && state != newState) {
+    private static void changeState(Decorator decorator) {
+        if (inDecorator.getType() != Type.NO_STATE && inDecorator.getType() != decorator.getType()) {
             flush();
             clearAll();
         }
-        state = newState;
+        inDecorator = decorator;
+        String str;
     }
 
     private static void flush() {
-        printer(stateToString(state) + buffer);
+        printer(inDecorator.decorate(buffer));
         buffer = "";
     }
 
     public static void log(int message) {
-        changeState(State.INT_STATE);
+        changeState(new IntDecorator());
         boolean overflow = Integer.MAX_VALUE - sum_int < message;
         if (overflow) {
             flush();
@@ -78,7 +60,7 @@ public class Logger {
     }
 
     public static void log(byte message) {
-        changeState(State.BYTE_STATE);
+        changeState(new ByteDecorator());
         boolean overflow = Byte.MAX_VALUE - sum_byte < message;
         if (overflow) {
             flush();
@@ -90,14 +72,14 @@ public class Logger {
     }
 
     public static void log(char message) {
-        changeState(State.CHAR_STATE);
+        changeState(new CharDecorator());
         buffer = Character.toString(message);
         flush();
         clearAll();
     }
 
     public static void log(String message) {
-        changeState(State.STRING_STATE);
+        changeState(new StringDecorator());
         if (!cur_string.isEmpty() && !cur_string.equals(message)) {
             flush();
             cntr = 0;
@@ -109,14 +91,14 @@ public class Logger {
     }
 
     public static void log(boolean message) {
-        changeState(State.BOOLEAN_STATE);
+        changeState(new BooleanDecorator());
         buffer = Boolean.toString(message);
         flush();
         clearAll();
     }
 
     public static void log(Object message) {
-        changeState(State.OBJECT_STATE);
+        changeState(new ObjectDecorator());
         buffer = message.toString();
         flush();
         clearAll();
