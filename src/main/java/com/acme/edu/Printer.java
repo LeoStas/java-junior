@@ -6,8 +6,8 @@ package com.acme.edu;
 public interface Printer {
     /**
      * @param msg Message, that we need to print
-     * @param decorator Decoration for message
+     *
      */
-    public void print(String msg, Decorator decorator);
+    public void print(String msg);
 
 }

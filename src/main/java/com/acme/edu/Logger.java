@@ -12,100 +12,103 @@ enum Type
 }
 
 public class Logger {
-    private static int sum_int;
-    private static byte sum_byte;
-    private static String cur_string = "";
-    private static int cntr;
-    private static Decorator inDecorator = new NoDecorator();
-    private static String buffer = "";
+    private int sumInt;
+    private byte sumByte;
+    private String currentString = "";
+    private int counter;
+    private Decorator inDecorator = new NoDecorator();
+    private String buffer = "";
+    private Printer[] printers;
 
-    private static void clearAll() {
-        sum_int = 0;
-        sum_byte = 0;
-        cur_string = "";
-        cntr = 0;
+    public Logger(Printer ... printers) {
+        this.printers = printers;
+    }
+
+    private void clearAll() {
+        sumInt = 0;
+        sumByte = 0;
+        currentString = "";
+        counter = 0;
         buffer = "";
         inDecorator = new NoDecorator();
     }
 
-    private static void changeState(Decorator decorator) {
+    private void changeStateAndDecoratorType(Decorator decorator) {
         if (inDecorator.getType() != Type.NO_STATE && inDecorator.getType() != decorator.getType()) {
             flush();
             clearAll();
         }
         inDecorator = decorator;
-        String str;
     }
 
-    private static void flush() {
-        printer(inDecorator.decorate(buffer));
+    private void flush() {
+        for (Printer printer : printers) {
+            printer.print(inDecorator.decorate(buffer));
+        }
         buffer = "";
     }
 
-    public static void log(int message) {
-        changeState(new IntDecorator());
-        boolean overflow = Integer.MAX_VALUE - sum_int < message;
+    public void log(int message) {
+        changeStateAndDecoratorType(new IntDecorator());
+        boolean overflow = Integer.MAX_VALUE - sumInt < message;
         if (overflow) {
             flush();
-            sum_int = Integer.MAX_VALUE;
+            sumInt = Integer.MAX_VALUE;
         } else {
-            sum_int += message;
+            sumInt += message;
         }
-        buffer = Integer.toString(sum_int);
+        buffer = Integer.toString(sumInt);
     }
 
-    public static void closeLogSession() {
+    public void closeLogSession() {
         flush();
         clearAll();
     }
 
-    public static void log(byte message) {
-        changeState(new ByteDecorator());
-        boolean overflow = Byte.MAX_VALUE - sum_byte < message;
+    public void log(byte message) {
+        changeStateAndDecoratorType(new ByteDecorator());
+        boolean overflow = Byte.MAX_VALUE - sumByte < message;
         if (overflow) {
             flush();
-            sum_byte = Byte.MAX_VALUE;
+            sumByte = Byte.MAX_VALUE;
         } else {
-            sum_byte += message;
+            sumByte += message;
         }
-        buffer = Byte.toString(sum_byte);
+        buffer = Byte.toString(sumByte);
     }
 
-    public static void log(char message) {
-        changeState(new CharDecorator());
+    public void log(char message) {
+        changeStateAndDecoratorType(new CharDecorator());
         buffer = Character.toString(message);
         flush();
         clearAll();
     }
 
-    public static void log(String message) {
-        changeState(new StringDecorator());
-        if (!cur_string.isEmpty() && !cur_string.equals(message)) {
+    public void log(String message) {
+        changeStateAndDecoratorType(new StringDecorator());
+        if (!currentString.isEmpty() && !currentString.equals(message)) {
             flush();
-            cntr = 0;
+            counter = 0;
         }
-        ++cntr;
-        cur_string = message;
-        String numStr = cntr > 1 ? " (x" + cntr + ")" : "";
-        buffer = cur_string + numStr;
+        ++counter;
+        currentString = message;
+        String numStr = counter > 1 ? " (x" + counter + ")" : "";
+        buffer = currentString + numStr;
     }
 
-    public static void log(boolean message) {
-        changeState(new BooleanDecorator());
+    public void log(boolean message) {
+        changeStateAndDecoratorType(new BooleanDecorator());
         buffer = Boolean.toString(message);
         flush();
         clearAll();
     }
 
-    public static void log(Object message) {
-        changeState(new ObjectDecorator());
+    public void log(Object message) {
+        changeStateAndDecoratorType(new ObjectDecorator());
         buffer = message.toString();
         flush();
         clearAll();
     }
 
-    private static void printer(String input){
-        System.out.println(input);
-    }
 
 }
