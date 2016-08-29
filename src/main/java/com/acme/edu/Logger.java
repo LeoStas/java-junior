@@ -91,6 +91,9 @@ public class Logger {
     }
 
     public void log(String message) {
+        if (message == null) {
+            throw new IllegalArgumentException();
+        }
         changeStateAndDecoratorType(new StringDecorator());
         if (!currentString.isEmpty() && !currentString.equals(message)) {
             flush();
@@ -110,6 +113,9 @@ public class Logger {
     }
 
     public void log(Object message) {
+        if (message == null) {
+            throw new IllegalArgumentException();
+        }
         changeStateAndDecoratorType(new ObjectDecorator());
         buffer = message.toString();
         flush();
