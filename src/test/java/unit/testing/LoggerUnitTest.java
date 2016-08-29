@@ -2,6 +2,7 @@ package unit.testing;
 
 import com.acme.edu.Logger;
 import com.acme.edu.Printer;
+import com.acme.edu.PrinterException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +30,11 @@ public class LoggerUnitTest {
 
         logger.log(15);
         logger.closeLogSession();
-
-        verify(mockPrinter).print("primitive: 15");
+        try {
+            verify(mockPrinter).print("primitive: 15");
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -38,8 +42,11 @@ public class LoggerUnitTest {
 
         logger.log("test data");
         logger.closeLogSession();
-
-        verify(mockPrinter).print("string: test data");
+        try {
+            verify(mockPrinter).print("string: test data");
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -47,8 +54,11 @@ public class LoggerUnitTest {
 
         logger.log('a');
         logger.closeLogSession();
-
-        verify(mockPrinter).print("char: a");
+        try {
+            verify(mockPrinter).print("char: a");
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -56,8 +66,11 @@ public class LoggerUnitTest {
 
         logger.log(true);
         logger.closeLogSession();
-
-        verify(mockPrinter).print("primitive: true");
+        try {
+            verify(mockPrinter).print("primitive: true");
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -66,8 +79,11 @@ public class LoggerUnitTest {
         Object obj = new Object();
         logger.log(obj);
         logger.closeLogSession();
-
-        verify(mockPrinter).print("reference: " + obj.toString());
+        try {
+            verify(mockPrinter).print("reference: " + obj.toString());
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -76,6 +92,10 @@ public class LoggerUnitTest {
         logger.log((byte) 12);
         logger.closeLogSession();
 
-        verify(mockPrinter).print("primitive: 12");
+        try {
+            verify(mockPrinter).print("primitive: 12");
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 }

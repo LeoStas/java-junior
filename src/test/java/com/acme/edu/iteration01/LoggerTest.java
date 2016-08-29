@@ -9,7 +9,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
-@Ignore
 public class LoggerTest implements SysoutCaptureAndAssertionAbility {
     //region given
     @Before
@@ -32,8 +31,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
                     public void print(String msg) {
                         System.out.print(msg);
                     }
-                },
-                msg -> System.out.println(msg)
+                }
         );
         logger.log(1);
         logger.log(0);
