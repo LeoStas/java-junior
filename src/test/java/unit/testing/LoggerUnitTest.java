@@ -126,4 +126,19 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
 
 
     }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionForObject () {
+        boolean flag = false;
+        try {
+            logger.log ((Object) null);
+        } catch (IllegalArgumentException e) {
+            flag = true;
+            // assertSyserrContains("Exception");
+        }
+
+        assertTrue(flag);
+
+
+    }
 }
