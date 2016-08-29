@@ -1,7 +1,6 @@
 package com.acme.edu;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 /**
  * Created by Java_12 on 25.08.2016.
