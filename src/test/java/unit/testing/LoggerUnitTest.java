@@ -3,10 +3,16 @@ package unit.testing;
 import com.acme.edu.Logger;
 import com.acme.edu.Printer;
 import com.acme.edu.PrinterException;
+import com.acme.edu.SysoutCaptureAndAssertionAbility;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.verify;
@@ -14,16 +20,23 @@ import static org.mockito.Mockito.verify;
 /**
  * Created by Java_4 on 26.08.2016.
  */
-public class LoggerUnitTest {
+public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
 
     private Printer mockPrinter;
     private Logger logger;
 
     @Before
     public void setUp() {
+        resetErr();
+        captureSyserr();
         mockPrinter = mock(Printer.class);
         logger = new Logger ((Printer) mockPrinter);
 
+    }
+
+    @After
+    public void resetAfter () {
+        resetErr();
     }
     @Test
     public void shouldPrintCorrectStringForIntData () {
@@ -97,5 +110,20 @@ public class LoggerUnitTest {
         } catch (PrinterException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionForString () {
+        boolean flag = false;
+        try {
+            logger.log ((String) null);
+        } catch (IllegalArgumentException e) {
+            flag = true;
+           // assertSyserrContains("Exception");
+        }
+
+        assertTrue(flag);
+
+
     }
 }
