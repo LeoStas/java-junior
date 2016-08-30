@@ -10,8 +10,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.apache.commons.io.FileUtils.readLines;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockingDetails;
@@ -24,6 +32,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
 
     private Printer mockPrinter;
     private Logger logger;
+    private File file = new File("test.txt");
 
     @Before
     public void setUp() {
@@ -121,4 +130,39 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
     public void shouldThrowIllegalArgumentExceptionForObject () {
         logger.log((Object) null);
     }
+
+    @Test
+    public void shouldWriteStringDataToTheFileCorrectly () {
+        //get file path and file name
+        Logger loggerFile = new Logger ();
+        boolean flag = false;
+
+        //call logger.log
+            //print to the file
+        loggerFile.log("test data");
+        loggerFile.closeLogSession();
+
+        //read file from test
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("string: test data")){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+
+        //assert that file contains correctdata
+
+        //readLines
+
+        //assertSame("data that's read from file is not");
+
+    }
+
 }
