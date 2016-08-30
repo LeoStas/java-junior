@@ -78,6 +78,17 @@ public class Logger {
         clearAll();
     }
 
+    public void openLogSession() {
+        for (Printer printer : printers) {
+            try {
+                printer.openPrinter();
+            } catch (PrinterException e) {
+                e.printStackTrace();
+            }
+        }
+        clearAll();
+    }
+
     public void log(byte message) {
         changeStateAndDecoratorType(new ByteDecorator());
         boolean overflow = Byte.MAX_VALUE - sumByte < message;
