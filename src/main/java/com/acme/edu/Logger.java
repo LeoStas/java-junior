@@ -45,9 +45,9 @@ public class Logger {
 
     private void flush() {
         for (Printer printer : printers) {
-            try (Printer p = printer) {
-                p.print(inDecorator.decorate(buffer));
-            } catch (IOException | PrinterException e) {
+            try {
+                printer.print(inDecorator.decorate(buffer));
+            } catch (PrinterException e) {
                 e.printStackTrace();
             }
         }
@@ -68,6 +68,13 @@ public class Logger {
 
     public void closeLogSession() {
         flush();
+        for (Printer printer : printers) {
+            try {
+                printer.closePrinter();
+            } catch (PrinterException e) {
+                e.printStackTrace();
+            }
+        }
         clearAll();
     }
 
