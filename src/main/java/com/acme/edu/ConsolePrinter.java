@@ -17,21 +17,23 @@ public class ConsolePrinter implements Printer {
     }
 
     /**
-     * Closes this stream and releases any system resources associated
-     * with it. If the stream is already closed then invoking this
-     * method has no effect.
-     * <p>
-     * <p> As noted in {@link AutoCloseable#close()}, cases where the
-     * close may fail require careful attention. It is strongly advised
-     * to relinquish the underlying resources and to internally
-     * <em>mark</em> the {@code Closeable} as closed, prior to throwing
-     * the {@code IOException}.
+     * Opens printer session
      *
-     * @throws IOException if an I/O error occurs
+     * @throws PrinterException
      */
     @Override
-    public void close() throws IOException {
+    public void openPrinter() throws PrinterException {
         System.out.flush();
-        return;
     }
+
+    /**
+     * Closes printer session
+     *
+     * @throws PrinterException
+     */
+    @Override
+    public void closePrinter() throws PrinterException {
+        System.out.flush();
+    }
+
 }
