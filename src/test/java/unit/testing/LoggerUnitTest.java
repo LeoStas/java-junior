@@ -1,9 +1,6 @@
 package unit.testing;
 
-import com.acme.edu.Logger;
-import com.acme.edu.Printer;
-import com.acme.edu.PrinterException;
-import com.acme.edu.SysoutCaptureAndAssertionAbility;
+import com.acme.edu.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +29,6 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
 
     private Printer mockPrinter;
     private Logger logger;
-    private File file = new File("test.txt");
 
     @Before
     public void setUp() {
@@ -134,7 +130,9 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
     @Test
     public void shouldWriteStringDataToTheFileCorrectly () {
         //get file path and file name
-        Logger loggerFile = new Logger ();
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
         boolean flag = false;
 
         //call logger.log
