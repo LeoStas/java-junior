@@ -43,8 +43,8 @@ public class FilePrinter implements Printer {
         try {
             writer = new OutputStreamWriter(
                         new BufferedOutputStream(
-                            new FileOutputStream(file)));
-        } catch (FileNotFoundException e) {
+                            new FileOutputStream(file)), "UTF-8");
+        } catch (UnsupportedEncodingException | FileNotFoundException e) {
             throw new PrinterException("File not found!", e);
         }
     }
