@@ -145,4 +145,131 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         assertTrue(flag);
     }
 
+    @Test
+    public void shouldWriteIntegerDataToTheFileCorrectly () {
+
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
+        boolean flag = false;
+
+        loggerFile.log(288);
+        loggerFile.closeLogSession();
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("primitive: 288")){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+    }
+
+    @Test
+    public void shouldWriteByteDataToTheFileCorrectly () {
+
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
+        boolean flag = false;
+
+        loggerFile.log((byte) 120);
+        loggerFile.closeLogSession();
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("primitive: 120")){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+    }
+
+    @Test
+    public void shouldWriteCharDataToTheFileCorrectly () {
+
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
+        boolean flag = false;
+
+        loggerFile.log('a');
+        loggerFile.closeLogSession();
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("char: a")){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+    }
+
+    @Test
+    public void shouldWriteBooleanDataToTheFileCorrectly () {
+
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
+        boolean flag = false;
+
+        loggerFile.log(true);
+        loggerFile.closeLogSession();
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("primitive: true")){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+    }
+
+    @Test
+    public void shouldWriteObjectDataToTheFileCorrectly () {
+
+        File file = new File("test.txt");
+        Logger loggerFile = new Logger (new FilePrinter(file));
+        loggerFile.openLogSession();
+        boolean flag = false;
+
+        Object testObject = new Object();
+
+        loggerFile.log(testObject);
+        loggerFile.closeLogSession();
+
+        try {
+            List<String> FileData = readLines(file, "UTF-8");
+            for (String s : FileData) {
+                if (s.equals("reference: " + testObject.toString())){
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(flag);
+    }
+
 }
