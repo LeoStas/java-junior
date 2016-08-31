@@ -2,15 +2,11 @@ package unit.testing;
 
 import com.acme.edu.*;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.io.FileUtils.readLines;
@@ -32,6 +28,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         captureSyserr();
         mockPrinter = mock(Printer.class);
         logger = new Logger ((Printer) mockPrinter);
+        logger.openLogSession();
 
     }
 
