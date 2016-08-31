@@ -1,8 +1,6 @@
 package com.acme.edu.iteration01;
 
-import com.acme.edu.ConsolePrinter;
-import com.acme.edu.Logger;
-import com.acme.edu.SysoutCaptureAndAssertionAbility;
+import com.acme.edu.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,7 +45,8 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
     @Test
     public void shouldLogByte() throws IOException {
         //region when
-        Logger logger = new Logger(new ConsolePrinter());
+        Logger logger = new Logger(new ConsolePrinter(), new NetworkPrinter(1111, "localhost"));
+        logger.openLogSession();
         logger.log((byte)1);
         logger.log((byte)0);
         logger.log((byte)-1);
