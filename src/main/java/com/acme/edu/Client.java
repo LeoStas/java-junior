@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Client {
     private ClientSession clientSession;
     private volatile boolean closed = false;
@@ -23,10 +24,15 @@ public class Client {
         clientSession.createSession();
     }
 
+    private static void PrintErrorMessageToConsole(String message) {
+        System.out.println(TextColor.ANSI_RED + message + TextColor.ANSI_RESET);
+    }
+
     /**
      * @param message message to send
      */
     public void send(String message) throws ExitClientException {
+        if (closed) return;
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
         Matcher m = p.matcher(message);
         if(m.matches()) {
@@ -34,7 +40,7 @@ public class Client {
                 case "snd":
                     String text = m.group(2);
                     if(text.length() < 2) {
-                        System.out.println("[EMPTY MESSAGE] Provide at least 1 character.");
+                        PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
                         return;
                     }
                     text = text.substring(1);
@@ -47,11 +53,11 @@ public class Client {
                 case "exit":
                     throw new ExitClientException();
                 default:
-                    System.out.println("[WRONG COMMAND] Inapplicable command.");
+                    PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
             }
         }
         else {
-            System.out.println("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
+            PrintErrorMessageToConsole("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
                     "[WRONG INPUT] Your message should be separated from command with space.");
         }
     }
@@ -84,24 +90,26 @@ public class Client {
                     System.out.println(client.receive());
                 } catch (SocketException e) {
                     if(!e.getMessage().equals("Socket closed")) {
-                        System.out.println("[ERROR] Can't connect to server");
-                        break;
+                        PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                        client.close();
+                        return;
                     }
                 } catch (IOException e) {
-                    System.out.println("[ERROR] Can't connect to server");
-                    break;
+                    PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                    client.close();
+                    return;
                 }
             }
         });
 
         pool.execute(() -> {
             try {
-                while(true) {
+                while(!client.isClosed()) {
                     try {
                         client.send(reader.readLine());
                     } catch (IOException e) {
-                        System.out.println("[ERROR] Can't connect to server");
-                        break;
+                        PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                        return;
                     }
                 }
             } catch (ExitClientException e) {
