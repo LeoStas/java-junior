@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class RemotePrinterServer {
+public class Server {
     public static void main(String[] args) {
         int maxClientNumber = 10000;
         int curClientNumber = 0;
