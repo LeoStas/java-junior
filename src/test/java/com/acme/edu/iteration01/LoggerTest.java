@@ -19,7 +19,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         resetOut();
     }
     //endregion
-
+/**
     @Test
     public void shouldLogInteger() throws IOException {
         //region when
@@ -126,5 +126,5 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
         //endregion
     }
 
-
+**/
 }
