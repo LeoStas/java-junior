@@ -58,7 +58,7 @@ public class Client {
         return "";
     }
 
-    public void close() {
+    public synchronized void close() {
         closed = true;
         clientSession.closeSession();
     }
@@ -76,7 +76,7 @@ public class Client {
         pool.execute(() -> {
             while (!client.isClosed()) {
                 try {
-                    client.receive();
+                    System.out.println(client.receive());
                 } catch (SocketException e) {
                     if(!e.getMessage().equals("Socket closed")) {
                         e.printStackTrace();
@@ -98,7 +98,7 @@ public class Client {
                 }
             } catch (ExitClientException e) {
                 client.close();
-                pool.shutdown();
+                pool.shutdownNow();
             }
         });
     }
