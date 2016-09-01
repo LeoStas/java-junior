@@ -13,14 +13,6 @@ public class Connector {
     String serverName;
     ObjectOutputStream out;
 
-    public ObjectOutputStream getOutput() throws IOException {
-        if (!isConnected()) {
-            throw new IOException("Connection is not established!");
-        }
-        return out;
-    }
-
-
     /**
      *
      * @param port port on server
@@ -31,16 +23,42 @@ public class Connector {
         this.serverName = serverName;
     }
 
+
+    /**
+     *
+     * @param port port on server
+     * @param serverName server name
+     * @param out stream to write
+     */
     public Connector(int port, String serverName, ObjectOutputStream out) {
         this.port = port;
         this.serverName = serverName;
         this.out = out;
     }
 
+    /**
+     *
+     * @return Network output stream if connection is established
+     * @throws IOException if connection wasn't established
+     */
+    public ObjectOutputStream getOutput() throws IOException {
+        if (!isConnected()) {
+            throw new IOException("Connection is not established!");
+        }
+        return out;
+    }
+
+    /**
+     *
+     * @return true if connection is established and stream created
+     */
     public boolean isConnected() {
         return out != null;
     }
 
+    /**
+     * connects to server and sets output stream
+     */
     public void connect() {
         if (isConnected()) {
             return;
@@ -57,6 +75,9 @@ public class Connector {
             e.printStackTrace();
         }
     }
+    /**
+     * closes output stream
+     */
     public void disconnect() {
         if (!isConnected()) {
             return;
