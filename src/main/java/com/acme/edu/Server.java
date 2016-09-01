@@ -6,14 +6,11 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Server {
-    public static List<SessionHandler> sessionHandlerList =
-            Collections.synchronizedList(new ArrayList<SessionHandler>());
+    public static Set<SessionHandler> sessionHandlerList =
+            Collections.synchronizedSet(new HashSet<SessionHandler>());
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -33,6 +30,7 @@ public class Server {
                 sessionHandler.start();
             }
         } catch (IOException e) {
+            shutdownServer();
             e.printStackTrace();
         }
     }
@@ -100,6 +98,7 @@ public class Server {
         void close() {
             System.out.println("Close connection");
             System.out.println();
+            sessionHandlerList.remove(this);
             try {
                 in.close();
                 out.close();
