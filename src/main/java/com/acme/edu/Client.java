@@ -2,9 +2,6 @@ package com.acme.edu;
 
 import java.io.IOException;
 
-/**
- * Created by Java_12 on 31.08.2016.
- */
 public class Client {
     private ClientSession clientSession;
 
@@ -26,7 +23,7 @@ public class Client {
     public Message receive() throws SenderException {
         Message res = null;
         try {
-            res = clientSession.receiveMessage();
+            clientSession.receiveMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }

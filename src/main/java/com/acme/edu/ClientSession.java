@@ -17,7 +17,7 @@ public class ClientSession {
     }
     public void sendMessage(Message message) throws IOException {
         try {
-            connector.getOutput().writeObject(message);
+            connector.getOutput().println(message);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Can not send the message!", e);
@@ -25,17 +25,13 @@ public class ClientSession {
     }
 
 
-    public Message receiveMessage() throws IOException {
-        Message result = null;
+    public void receiveMessage() throws IOException {
         try {
-            result = (Message)connector.getInput().readObject();
+            System.out.println(connector.getInput().readLine());
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Can not receive the message!", e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
-        return result;
     }
 
     public void closeSession() {

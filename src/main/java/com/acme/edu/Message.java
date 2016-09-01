@@ -31,4 +31,9 @@ public class Message implements Serializable {
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return data;
+    }
 }

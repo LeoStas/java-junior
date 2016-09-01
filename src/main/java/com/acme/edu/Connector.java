@@ -66,6 +66,7 @@ public class Connector {
     public boolean isConnected() {
         return out != null || in != null;
     }
+
     /**
      * connects to server and sets output stream
      */
