@@ -76,25 +76,26 @@ public class Client {
 
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        pool.execute(() -> {
-            while(true) {
-                client.receive();
-            }
-        });
+//        pool.execute(() -> {
+//            while(true) {
+//                client.receive();
+//            }
+//        });
 
         pool.execute(() -> {
-            while(true) {
-                try {
-                    client.send(reader.readLine());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ExitClientException e) {
-                    client.close();
+            try {
+                while(true) {
+                    try {
+                        client.send(reader.readLine());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+            } catch (ExitClientException e) {
+                client.close();
+                pool.shutdown();
             }
         });
-
-        client.close();
     }
 }
 
