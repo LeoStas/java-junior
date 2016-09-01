@@ -1,24 +1,16 @@
 package com.acme.edu;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class ExitClientException extends Exception {
-    public ExitClientException() {
-        super();
-    }
-}
-
 public class Client {
     private ClientSession clientSession;
+    private volatile boolean closed = false;
 
     public Client(int port, String serverName) {
         clientSession = new ClientSession(port, serverName);
@@ -68,6 +60,11 @@ public class Client {
 
     public void close() {
         clientSession.closeSession();
+        closed = true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 
     public static void main(String[] args) {
@@ -76,11 +73,11 @@ public class Client {
 
         ExecutorService pool = Executors.newCachedThreadPool();
 
-//        pool.execute(() -> {
-//            while(true) {
-//                client.receive();
-//            }
-//        });
+        pool.execute(() -> {
+            while(!client.isClosed()) {
+                client.receive();
+            }
+        });
 
         pool.execute(() -> {
             try {
