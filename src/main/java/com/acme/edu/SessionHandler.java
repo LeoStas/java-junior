@@ -15,6 +15,11 @@ public class SessionHandler {
                         new BufferedInputStream(
                                 client.getInputStream()
                         )
+                );
+                ObjectOutputStream out = new ObjectOutputStream(
+                        new BufferedOutputStream(
+                                client.getOutputStream()
+                        )
                 )
         ) {
             while (true) {
@@ -22,14 +27,22 @@ public class SessionHandler {
                     Message msg = (Message) in.readObject();
                     msg.setDate(LocalDateTime.now());
                     System.out.println(msg.getData() + " [" + msg.getDate() + "]");
+                    out.writeObject(msg);
                 } catch (IOException e) {
                     System.out.println("Close connection");
+                    System.out.println();
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     break;
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            client.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
