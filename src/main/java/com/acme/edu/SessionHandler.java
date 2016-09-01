@@ -3,6 +3,7 @@ package com.acme.edu;
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 
 /**
  * Implement all connections with the concrete client.
@@ -39,13 +40,14 @@ class SessionHandler extends Thread {
     public void run() {
         while (true) {
             try {
-                String msg = in.readLine() + " [" + LocalDateTime.now() + "]";
+                String rcv_msg = in.readLine();
+                if (rcv_msg == null) break;
+
+                String msg = rcv_msg + " [" + LocalDateTime.now() + "]";
                 System.out.println(msg);
                 out.println(msg);
                 out.flush();
             } catch (IOException e) {
-                //System.out.println("Close connection");
-                //System.out.println();
                 break;
             }
         }
@@ -54,6 +56,8 @@ class SessionHandler extends Thread {
     }
 
     void close() {
+        System.out.println("Close connection");
+        System.out.println();
         try {
             in.close();
             out.close();
