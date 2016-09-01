@@ -3,6 +3,7 @@ package com.acme.edu;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -50,17 +51,15 @@ public class Client {
         }
     }
 
-    public void receive() {
-        try {
+    public void receive() throws IOException {
+        if(!closed) {
             clientSession.receiveMessage();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     public void close() {
-        clientSession.closeSession();
         closed = true;
+        clientSession.closeSession();
     }
 
     public boolean isClosed() {
@@ -74,8 +73,16 @@ public class Client {
         ExecutorService pool = Executors.newCachedThreadPool();
 
         pool.execute(() -> {
-            while(!client.isClosed()) {
-                client.receive();
+            while (!client.isClosed()) {
+                try {
+                    client.receive();
+                } catch (SocketException e) {
+                    if(!e.getMessage().equals("Socket closed")) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
