@@ -15,7 +15,7 @@ public class ClientSession {
     public void createSession() {
         connector.connect();
     }
-    public void sendMessage(Message message) throws IOException {
+    public void sendMessage(String message) throws IOException {
         try {
             connector.getOutput().println(message);
         } catch (IOException e) {
