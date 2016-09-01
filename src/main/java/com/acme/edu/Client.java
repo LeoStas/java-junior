@@ -84,10 +84,12 @@ public class Client {
                     System.out.println(client.receive());
                 } catch (SocketException e) {
                     if(!e.getMessage().equals("Socket closed")) {
-                        e.printStackTrace();
+                        System.out.println("[ERROR] Can't connect to server");
+                        break;
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("[ERROR] Can't connect to server");
+                    break;
                 }
             }
         });
@@ -98,7 +100,8 @@ public class Client {
                     try {
                         client.send(reader.readLine());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("[ERROR] Can't connect to server");
+                        break;
                     }
                 }
             } catch (ExitClientException e) {

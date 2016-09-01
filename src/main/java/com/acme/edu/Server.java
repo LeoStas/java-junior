@@ -5,10 +5,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class Server {
-    private static List<SessionHandler> sessionHandlerList =
+    public static List<SessionHandler> sessionHandlerList =
             Collections.synchronizedList(new ArrayList<SessionHandler>());
 
     public static void main(String[] args) {
@@ -22,7 +23,6 @@ public class Server {
                 Socket client = serverSocket.accept();
                 SessionHandler sessionHandler = new SessionHandler(client);
                 sessionHandlerList.add(sessionHandler);
-                //sessionHandler.run();
                 sessionHandler.start();
             }
         } catch (IOException e) {
