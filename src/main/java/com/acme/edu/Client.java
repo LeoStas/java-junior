@@ -18,6 +18,11 @@ public class Client {
         clientSession.createSession();
     }
 
+    public Client(int port, String serverName, ClientSession cs) {
+        clientSession = cs;
+        clientSession.createSession();
+    }
+
     /**
      * @param message message to send
      */
@@ -68,7 +73,7 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        Client client = new Client(1111, "localhost");
+        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newCachedThreadPool();
