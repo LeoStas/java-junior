@@ -3,6 +3,7 @@ package com.acme.edu;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -49,18 +50,17 @@ public class Client {
                     "[WRONG INPUT] Your message should be separated from command with space.");
         }
     }
-    public String receive() {
-        try {
+
+    public String receive() throws IOException {
+        if(!closed) {
             return clientSession.receiveMessage();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return "";
     }
 
     public void close() {
-        clientSession.closeSession();
         closed = true;
+        clientSession.closeSession();
     }
 
     public boolean isClosed() {
@@ -74,10 +74,19 @@ public class Client {
         ExecutorService pool = Executors.newCachedThreadPool();
 
         pool.execute(() -> {
-            while(!client.isClosed()) {
-                client.receive();
+            while (!client.isClosed()) {
+                try {
+                    client.receive();
+                } catch (SocketException e) {
+                    if(!e.getMessage().equals("Socket closed")) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
+
         pool.execute(() -> {
             try {
                 while(true) {

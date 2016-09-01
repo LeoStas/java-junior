@@ -7,6 +7,7 @@ import java.io.IOException;
  */
 public class ClientSession {
     private Connector connector;
+    private final Object monitor1 = new Object();
 
     public ClientSession(int port, String serverName) {
         this.connector = new Connector(port, serverName);
@@ -16,23 +17,16 @@ public class ClientSession {
         connector.connect();
     }
     public void sendMessage(String message) throws IOException {
-        try {
-            connector.getOutput().println(message);
-            connector.getOutput().flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException("Can not send the message!", e);
-        }
+        connector.getOutput().println(message);
+        connector.getOutput().flush();
+
     }
 
 
     public String receiveMessage() throws IOException {
-        try {
-            //while (!connector.getInput().ready()) {}
+        String s;
+        synchronized (monitor1) {
             return connector.getInput().readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException("Can not receive the message!", e);
         }
     }
 
