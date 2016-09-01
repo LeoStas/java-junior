@@ -21,7 +21,7 @@ public class Client {
     /**
      * @param message message to send
      */
-    public void send(String message) throws ExitClientException {
+    public int send(String message) throws ExitClientException {
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
         Matcher m = p.matcher(message);
         if(m.matches()) {
@@ -30,7 +30,10 @@ public class Client {
                     String text = m.group(2);
                     if(text.length() < 2) {
                         System.out.println("[EMPTY MESSAGE] Provide at least 1 character.");
-                        return;
+                        return -2;
+                    } else if (text.length() > 151) {
+                        System.out.println("[TOO LONG MESSAGE] Max length is 150 characters.");
+                        return -3;
                     }
                     text = text.substring(1);
                     try {
@@ -43,12 +46,15 @@ public class Client {
                     throw new ExitClientException();
                 default:
                     System.out.println("[WRONG COMMAND] Inapplicable command.");
+                    return -1;
             }
         }
         else {
             System.out.println("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
                     "[WRONG INPUT] Your message should be separated from command with space.");
+            return -10;
         }
+        return 0;
     }
 
     public String receive() throws IOException {
