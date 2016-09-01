@@ -27,28 +27,19 @@ public class Connector {
     }
 
     /**
-     * @param port port on server
-     * @param serverName server name
-     * @param out stream to write
-     */
-    public Connector(int port, String serverName, PrintWriter out) {
-        this.port = port;
-        this.serverName = serverName;
-        this.out = out;
-    }
-
-    /**
      *
      * @return Network output stream if connection is established
      * @throws IOException if connection wasn't established
      */
     public PrintWriter getOutput() throws IOException {
         if (out == null) {
-            new BufferedWriter(
-                    new OutputStreamWriter(
-                            new BufferedOutputStream(
-                                    socket.getOutputStream()
-                            )
+            out = new PrintWriter(
+                    new BufferedWriter(
+                        new OutputStreamWriter(
+                                new BufferedOutputStream(
+                                        socket.getOutputStream()
+                                )
+                        )
                     )
             );
         }
