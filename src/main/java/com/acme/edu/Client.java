@@ -5,10 +5,10 @@ import java.io.IOException;
 /**
  * Created by Java_12 on 31.08.2016.
  */
-public class Sender {
+public class Client {
     private ClientSession clientSession;
 
-    public Sender(int port, String serverName) {
+    public Client(int port, String serverName) {
         clientSession = new ClientSession(port, serverName);
     }
 
@@ -26,9 +26,9 @@ public class Sender {
     }
 
     public static void main(String[] args) {
-        Sender sender = new Sender(1111, "localhost");
+        Client client = new Client(1111, "localhost");
         try {
-            sender.send(new Message("bla"));
+            client.send(new Message("bla"));
 
         } catch (SenderException e) {
             e.printStackTrace();

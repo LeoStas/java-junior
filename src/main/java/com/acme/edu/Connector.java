@@ -13,6 +13,7 @@ public class Connector {
     String serverName;
     ObjectOutputStream out;
     ObjectInputStream in;
+    Socket socket;
 
     /**
      *
@@ -44,7 +45,15 @@ public class Connector {
      */
     public ObjectOutputStream getOutput() throws IOException {
         if (!isConnected()) {
-            throw new IOException("Connection is not established!");
+            if (in != null) {
+                in.close();
+                in = null;
+            }
+            out = new ObjectOutputStream(
+                    new BufferedOutputStream(
+                            socket.getOutputStream()
+                    )
+            );
         }
         return out;
     }
@@ -54,7 +63,7 @@ public class Connector {
      * @return true if connection is established and stream created
      */
     public boolean isConnected() {
-        return out != null;
+        return out != null || in != null;
     }
 
     /**
@@ -65,11 +74,7 @@ public class Connector {
             return;
         }
         try {
-                out = new ObjectOutputStream(
-                        new BufferedOutputStream(
-                                new Socket(serverName, port).getOutputStream()
-                            )
-                    );
+            socket = new Socket(serverName, port);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -84,9 +89,29 @@ public class Connector {
             return;
         }
         try {
-            out.close();
+            if (out != null) {
+                out.close();
+            }
+            if (in != null) {
+                in.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public ObjectInputStream getInput() throws IOException {
+        if (!isConnected()) {
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+            in = new ObjectInputStream(
+                    new BufferedInputStream(
+                            socket.getInputStream()
+                    )
+            );
+        }
+        return in;
     }
 }
