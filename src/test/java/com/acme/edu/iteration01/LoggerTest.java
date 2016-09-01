@@ -46,7 +46,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
     @Test
     public void shouldLogByte() throws IOException {
 //        //region when
-//        Logger logger = new Logger(new ConsolePrinter(), new Sender(1111, "localhost"));
+//        Logger logger = new Logger(new ConsolePrinter(), new Client(1111, "localhost"));
 //        logger.openLogSession();
 //        logger.log((byte)1);
 //        logger.log((byte)0);
