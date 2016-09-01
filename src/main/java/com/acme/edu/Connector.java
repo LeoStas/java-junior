@@ -1,5 +1,7 @@
 package com.acme.edu;
 
+import org.apache.commons.io.input.ReaderInputStream;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -9,14 +11,13 @@ import java.net.UnknownHostException;
  */
 
 public class Connector {
-    int port;
-    String serverName;
-    ObjectOutputStream out;
-    ObjectInputStream in;
-    Socket socket;
+    private int port;
+    private String serverName;
+    private PrintWriter out;
+    private BufferedReader in;
+    private Socket socket;
 
     /**
-     *
      * @param port port on server
      * @param serverName server name for connect
      */
@@ -25,14 +26,12 @@ public class Connector {
         this.serverName = serverName;
     }
 
-
     /**
-     *
      * @param port port on server
      * @param serverName server name
      * @param out stream to write
      */
-    public Connector(int port, String serverName, ObjectOutputStream out) {
+    public Connector(int port, String serverName, PrintWriter out) {
         this.port = port;
         this.serverName = serverName;
         this.out = out;
@@ -43,15 +42,30 @@ public class Connector {
      * @return Network output stream if connection is established
      * @throws IOException if connection wasn't established
      */
-    public ObjectOutputStream getOutput() throws IOException {
+    public PrintWriter getOutput() throws IOException {
         if (out == null) {
-            out = new ObjectOutputStream(
-                    new BufferedOutputStream(
-                            socket.getOutputStream()
+            new BufferedWriter(
+                    new OutputStreamWriter(
+                            new BufferedOutputStream(
+                                    socket.getOutputStream()
+                            )
                     )
             );
         }
         return out;
+    }
+
+    public BufferedReader getInput() throws IOException {
+        if (in == null) {
+            in = new BufferedReader(
+                    new InputStreamReader(
+                            new BufferedInputStream(
+                                    socket.getInputStream()
+                            )
+                    )
+            );
+        }
+        return in;
     }
 
     /**
@@ -61,7 +75,6 @@ public class Connector {
     public boolean isConnected() {
         return out != null || in != null;
     }
-
     /**
      * connects to server and sets output stream
      */
@@ -71,22 +84,13 @@ public class Connector {
         }
         try {
             socket = new Socket(serverName, port);
-            out = new ObjectOutputStream(
-                    new BufferedOutputStream(
-                            socket.getOutputStream()
-                    )
-            );
-            in = new ObjectInputStream(
-                    new BufferedInputStream(
-                            socket.getInputStream()
-                    )
-            );
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+            out = getOutput();
+            in = getInput();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     /**
      * closes output stream
      */
@@ -105,16 +109,5 @@ public class Connector {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public ObjectInputStream getInput() throws IOException {
-        if (in == null) {
-            in = new ObjectInputStream(
-                    new BufferedInputStream(
-                            socket.getInputStream()
-                    )
-            );
-        }
-        return in;
     }
 }
