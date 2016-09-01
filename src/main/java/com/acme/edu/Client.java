@@ -10,6 +10,7 @@ public class Client {
 
     public Client(int port, String serverName) {
         clientSession = new ClientSession(port, serverName);
+        clientSession.createSession();
     }
 
     /**
@@ -17,18 +18,32 @@ public class Client {
      */
     public void send(Message message) throws SenderException {
         try {
-            clientSession.createSession();
             clientSession.sendMessage(message);
-            clientSession.closeSession();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public Message receive() throws SenderException {
+        Message res = null;
+        try {
+            res = clientSession.receiveMessage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public void close() {
+        clientSession.closeSession();
     }
 
     public static void main(String[] args) {
         Client client = new Client(1111, "localhost");
         try {
             client.send(new Message("bla"));
+            Message mess = client.receive();
+            System.out.println(mess.getData() + mess.getDate());
+            client.close();
 
         } catch (SenderException e) {
             e.printStackTrace();

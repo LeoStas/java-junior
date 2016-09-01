@@ -44,11 +44,7 @@ public class Connector {
      * @throws IOException if connection wasn't established
      */
     public ObjectOutputStream getOutput() throws IOException {
-        if (!isConnected()) {
-            if (in != null) {
-                in.close();
-                in = null;
-            }
+        if (out == null) {
             out = new ObjectOutputStream(
                     new BufferedOutputStream(
                             socket.getOutputStream()
@@ -75,6 +71,16 @@ public class Connector {
         }
         try {
             socket = new Socket(serverName, port);
+            out = new ObjectOutputStream(
+                    new BufferedOutputStream(
+                            socket.getOutputStream()
+                    )
+            );
+            in = new ObjectInputStream(
+                    new BufferedInputStream(
+                            socket.getInputStream()
+                    )
+            );
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -95,17 +101,14 @@ public class Connector {
             if (in != null) {
                 in.close();
             }
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public ObjectInputStream getInput() throws IOException {
-        if (!isConnected()) {
-            if (out != null) {
-                out.close();
-                out = null;
-            }
+        if (in == null) {
             in = new ObjectInputStream(
                     new BufferedInputStream(
                             socket.getInputStream()

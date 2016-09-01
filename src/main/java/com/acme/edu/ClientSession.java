@@ -25,7 +25,7 @@ public class ClientSession {
     }
 
 
-    public Message receiveMessage(Message message) throws IOException {
+    public Message receiveMessage() throws IOException {
         Message result = null;
         try {
             result = (Message)connector.getInput().readObject();
