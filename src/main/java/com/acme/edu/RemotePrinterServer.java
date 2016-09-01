@@ -6,17 +6,11 @@ import java.net.Socket;
 
 public class RemotePrinterServer {
     public static void main(String[] args) {
-
-        try {
-            ServerSocket serverSocket = new ServerSocket(1111);
-            Socket client = null;
-            client = serverSocket.accept();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    new BufferedInputStream(
-                            client.getInputStream()
-                    )
-            ));
-            System.out.println(in.readLine());
+        try (
+            ServerSocket serverSocket = new ServerSocket(1111))
+            {
+                Socket client = serverSocket.accept();
+                SessionHandler sessionHandler = new SessionHandler(client);
         } catch (IOException e) {
             e.printStackTrace();
         }
