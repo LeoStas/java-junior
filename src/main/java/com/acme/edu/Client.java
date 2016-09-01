@@ -5,6 +5,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.StringJoiner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,12 +28,13 @@ public class Client {
             e.printStackTrace();
         }
     }
-    public void receive() {
+    public String receive() {
         try {
-            clientSession.receiveMessage();
+            return clientSession.receiveMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return "";
     }
 
     public void close() {
@@ -44,22 +46,18 @@ public class Client {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newCachedThreadPool();
+
 //        pool.execute(() -> {
 //            while(true) {
-//                client.receive();
-//            }
-//        });
-
-        pool.execute(() -> {
-            while(true) {
                 try {
                     String s = reader.readLine();
                     client.send(s);
+                    client.receive();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-        });
+//            }
+//        });
 
         client.close();
     }

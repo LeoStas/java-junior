@@ -18,6 +18,7 @@ public class ClientSession {
     public void sendMessage(String message) throws IOException {
         try {
             connector.getOutput().println(message);
+            connector.getOutput().flush();
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Can not send the message!", e);
@@ -25,9 +26,10 @@ public class ClientSession {
     }
 
 
-    public void receiveMessage() throws IOException {
+    public String receiveMessage() throws IOException {
         try {
-            System.out.println(connector.getInput().readLine());
+            //while (!connector.getInput().ready()) {}
+            return connector.getInput().readLine();
         } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Can not receive the message!", e);
