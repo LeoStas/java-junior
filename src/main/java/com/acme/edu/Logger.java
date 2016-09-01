@@ -1,7 +1,5 @@
 package com.acme.edu;
 
-import java.io.IOException;
-
 enum Type
 {
     NO_STATE,
@@ -47,7 +45,7 @@ public class Logger {
         for (Printer printer : printers) {
             try {
                 printer.print(inDecorator.decorate(buffer));
-            } catch (PrinterException e) {
+            } catch (SenderException e) {
                 e.printStackTrace();
             }
         }
@@ -71,7 +69,7 @@ public class Logger {
         for (Printer printer : printers) {
             try {
                 printer.closePrinter();
-            } catch (PrinterException e) {
+            } catch (SenderException e) {
                 e.printStackTrace();
             }
         }
@@ -82,7 +80,7 @@ public class Logger {
         for (Printer printer : printers) {
             try {
                 printer.openPrinter();
-            } catch (PrinterException e) {
+            } catch (SenderException e) {
                 e.printStackTrace();
             }
         }

@@ -43,7 +43,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         logger.closeLogSession();
         try {
             verify(mockPrinter).print("primitive: 15");
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }
@@ -55,7 +55,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         logger.closeLogSession();
         try {
             verify(mockPrinter).print("string: test data");
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }
@@ -67,7 +67,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         logger.closeLogSession();
         try {
             verify(mockPrinter).print("char: a");
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }
@@ -79,7 +79,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         logger.closeLogSession();
         try {
             verify(mockPrinter).print("primitive: true");
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }
@@ -92,7 +92,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
         logger.closeLogSession();
         try {
             verify(mockPrinter).print("reference: " + obj.toString());
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }
@@ -105,7 +105,7 @@ public class LoggerUnitTest implements SysoutCaptureAndAssertionAbility {
 
         try {
             verify(mockPrinter).print("primitive: 12");
-        } catch (PrinterException e) {
+        } catch (SenderException e) {
             e.printStackTrace();
         }
     }

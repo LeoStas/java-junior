@@ -22,45 +22,45 @@ public class FilePrinter implements Printer {
      * @param msg Message, that we need to print
      */
     @Override
-    public void print(String msg) throws PrinterException {
+    public void print(String msg) throws SenderException {
         if (writer == null) {
-            throw new PrinterException("Printer not opened!");
+            throw new SenderException("Printer not opened!");
         }
         try {
             writer.write(msg);
         } catch (IOException e) {
-            throw new PrinterException("Writing to file fails!", e);
+            throw new SenderException("Writing to file fails!", e);
         }
     }
 
     /**
      * Opens printer session
      *
-     * @throws PrinterException
+     * @throws SenderException
      */
     @Override
-    public void openPrinter() throws PrinterException {
+    public void openPrinter() throws SenderException {
         try {
             writer = new OutputStreamWriter(
                         new BufferedOutputStream(
                             new FileOutputStream(file)), "UTF-8");
         } catch (UnsupportedEncodingException | FileNotFoundException e) {
-            throw new PrinterException("File not found!", e);
+            throw new SenderException("File not found!", e);
         }
     }
 
     /**
      * Closes printer session
      *
-     * @throws PrinterException
+     * @throws SenderException
      */
     @Override
-    public void closePrinter() throws PrinterException {
+    public void closePrinter() throws SenderException {
         if (writer != null) {
             try {
                 writer.close();
             } catch (IOException e) {
-                throw new PrinterException("Close method failed", e);
+                throw new SenderException("Close method failed", e);
             }
         }
     }

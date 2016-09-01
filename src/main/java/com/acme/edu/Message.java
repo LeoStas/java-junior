@@ -1,8 +1,9 @@
 package com.acme.edu;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Message {
+public class Message implements Serializable {
     String data;
     LocalDateTime date;
 

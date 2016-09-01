@@ -1,7 +1,5 @@
 package com.acme.edu;
 
-import java.io.IOException;
-
 /**
  * Created by Java_12 on 25.08.2016.
  */
@@ -12,27 +10,27 @@ public class ConsolePrinter implements Printer {
      *
      */
     @Override
-    public void print(String msg) throws PrinterException {
+    public void print(String msg) throws SenderException {
         System.out.println(msg);
     }
 
     /**
      * Opens printer session
      *
-     * @throws PrinterException
+     * @throws SenderException
      */
     @Override
-    public void openPrinter() throws PrinterException {
+    public void openPrinter() throws SenderException {
         System.out.flush();
     }
 
     /**
      * Closes printer session
      *
-     * @throws PrinterException
+     * @throws SenderException
      */
     @Override
-    public void closePrinter() throws PrinterException {
+    public void closePrinter() throws SenderException {
         System.out.flush();
     }
 

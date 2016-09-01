@@ -12,6 +12,7 @@ public class Connector {
     int port;
     String serverName;
     ObjectOutputStream out;
+    ObjectInputStream in;
 
     /**
      *
