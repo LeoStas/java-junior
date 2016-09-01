@@ -3,10 +3,12 @@ package com.acme.edu;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 
 public class Server {
@@ -32,6 +34,12 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private synchronized void shutdownServer() {
+        for (SessionHandler sessionHandler: sessionHandlerList) {
+            sessionHandler.close();
         }
     }
 
@@ -65,12 +73,13 @@ public class Server {
         }
 
         public void run() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
             while (true) {
                 try {
                     String rcv_msg = in.readLine();
                     if (rcv_msg == null) break;
 
-                    String msg = rcv_msg + " [" + LocalDateTime.now() + "]";
+                    String msg = dateFormat.format(new Date()) + rcv_msg;
                     System.out.println(msg);
                     for (SessionHandler sessionHandler:sessionHandlerList) {
                         sessionHandler.send(msg);
