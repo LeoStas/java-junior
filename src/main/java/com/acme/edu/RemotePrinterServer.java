@@ -9,13 +9,13 @@ public class RemotePrinterServer {
         int maxClientNumber = 10000;
         int curClientNumber = 0;
         try (
-            ServerSocket serverSocket = new ServerSocket(1111))
-            {
-                while (curClientNumber < maxClientNumber) {
-                    curClientNumber++;
-                    Socket client = serverSocket.accept();
-                    SessionHandler sessionHandler = new SessionHandler(client);
-                }
+                ServerSocket serverSocket = new ServerSocket(1111))
+        {
+            while (curClientNumber < maxClientNumber) {
+                curClientNumber++;
+                Socket client = serverSocket.accept();
+                SessionHandler sessionHandler = new SessionHandler(client);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
