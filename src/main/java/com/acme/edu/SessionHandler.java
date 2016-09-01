@@ -8,41 +8,51 @@ import java.util.Date;
 /**
  * Implement all connections with the concrete client.
  */
-public class SessionHandler {
-    public SessionHandler(Socket client) {
-        try (
-                ObjectInputStream in = new ObjectInputStream(
-                        new BufferedInputStream(
-                                client.getInputStream()
-                        )
-                );
-                ObjectOutputStream out = new ObjectOutputStream(
-                        new BufferedOutputStream(
-                                client.getOutputStream()
-                        )
-                )
-        ) {
-            while (true) {
-                try {
-                    Message msg = (Message) in.readObject();
-                    msg.setDate(LocalDateTime.now());
-                    System.out.println(msg.getData() + " [" + msg.getDate() + "]");
-                    out.writeObject(msg);
-                } catch (IOException e) {
-                    System.out.println("Close connection");
-                    System.out.println();
-                    break;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    break;
-                }
-            }
+class SessionHandler extends Thread {
+    private BufferedReader in;
+    private PrintWriter  out;
+    private Socket socket;
+
+    public SessionHandler(Socket socket) {
+        this.socket = socket;
+        try {
+            in = new BufferedReader(
+                    new InputStreamReader(
+                            new BufferedInputStream(
+                                    socket.getInputStream()
+                            )
+                    )
+            );
+            out = new PrintWriter(
+                    new BufferedWriter(
+                            new OutputStreamWriter(
+                                    new BufferedOutputStream(
+                                            socket.getOutputStream()
+                                    )
+                            )
+                    )
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        while (true) {
+            try {
+                String msg = in.readLine() + " [" + LocalDateTime.now() + "]";
+                System.out.println(msg);
+                out.println(msg);
+            } catch (IOException e) {
+                System.out.println("Close connection");
+                System.out.println();
+                break;
+            }
+        }
+
+
         try {
-            client.close();
+            in.close();
+            out.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
