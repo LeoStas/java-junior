@@ -51,10 +51,11 @@ public class Client {
         }
     }
 
-    public void receive() throws IOException {
+    public String receive() throws IOException {
         if(!closed) {
-            clientSession.receiveMessage();
+            return clientSession.receiveMessage();
         }
+        return "";
     }
 
     public void close() {

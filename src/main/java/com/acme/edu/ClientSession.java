@@ -23,12 +23,11 @@ public class ClientSession {
     }
 
 
-    public void receiveMessage() throws IOException {
+    public String receiveMessage() throws IOException {
         String s;
         synchronized (monitor1) {
-            s = connector.getInput().readLine();
+            return connector.getInput().readLine();
         }
-        System.out.println(s);
     }
 
     public void closeSession() {
