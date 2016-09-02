@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 
 public class Client {
-    public static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server" + System.lineSeparator() + "Press Enter to exit.";
+    private static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server" + System.lineSeparator() + "Press Enter to exit.";
     private ClientSession clientSession;
     private volatile boolean closed = false;
 
@@ -26,7 +26,7 @@ public class Client {
     }
 
     public static void printErrorMessageToConsole(String message) {
-        System.out.println(message);
+        System.err.println(message);
     }
 
     /**
@@ -39,7 +39,8 @@ public class Client {
         Matcher m = p.matcher(message);
         if(m.matches()) {
             Integer x = processInputLine(m);
-            if (x != null) return x;
+            if (x != null)
+                return x;
         }
         else {
             printErrorMessageToConsole("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
@@ -54,7 +55,8 @@ public class Client {
             case "snd":
                 String text = m.group(2);
                 Integer x = processSendCommand(text);
-                if (x != null) return x;
+                if (x != null)
+                    return x;
                 break;
             case "exit":
                 throw new ExitClientException();
@@ -82,44 +84,44 @@ public class Client {
         return null;
     }
 
-    public String receive() throws IOException {
+    private String receive() throws IOException {
         if(!closed) {
             return clientSession.receiveMessage();
         }
         return "";
     }
 
-    public synchronized void close(boolean serverAvailable) {
+    private synchronized void close(boolean serverAvailable) {
         closed = true;
         if(serverAvailable) {
             clientSession.closeSession();
         }
     }
 
-    public boolean isClosed() {
+    private boolean isClosed() {
         return closed;
     }
 
-    public static void main(String[] args) {
-        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
+    public void process() {
+//        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
         pool.execute(() -> {
             try {
-                while (!client.isClosed()) {
-                    System.out.println(client.receive());
+                while (!this.isClosed()) {
+                    System.out.println(this.receive());
                 }
             } catch (SocketException e) {
                 if(!"Socket closed".equals(e.getMessage())) {
                     printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                    client.close(false);
+                    this.close(false);
                     pool.shutdownNow();
                 }
             } catch (IOException e) {
                 printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                client.close(false);
+                this.close(false);
                 pool.shutdownNow();
             }
 
@@ -127,19 +129,24 @@ public class Client {
 
         pool.execute(() -> {
             try {
-                while(!client.isClosed()) {
+                while(!this.isClosed()) {
                     try {
-                        client.send(reader.readLine());
+                        this.send(reader.readLine());
                     } catch (IOException e) {
                         printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
                         return;
                     }
                 }
             } catch (ExitClientException e) {
-                client.close(true);
+                this.close(true);
                 pool.shutdownNow();
             }
         });
+    }
+
+    public static void main(String[] args) {
+        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
+        client.process();
     }
 }
 
