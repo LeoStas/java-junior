@@ -75,6 +75,7 @@ public class Client {
             if(!"Socket closed".equals(e.getMessage())) {
                 printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
                 this.close(false);
+                new java.util.Scanner(System.in).nextLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
