@@ -84,5 +84,25 @@ public class ClientTest {
         assertEquals(-10, errorCodeReturned);
     }
 
+    @Test
+    public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException {
+        int port = 1111;
+        String host = "localhost";
+        int errorCodeReturned;
+        String testMessage = new String();
+        Client client = new Client (port, host);
+
+        for (int i = 0; i <153; i++) {
+            testMessage += "a";
+        }
+
+        testMessage = "/snd " + testMessage;
+
+        errorCodeReturned = client.send(testMessage);
+        assertEquals(-3, errorCodeReturned);
+    }
+
+
+
 
 }
