@@ -1,10 +1,7 @@
 package com.acme.edu;
 
-import org.apache.commons.io.input.ReaderInputStream;
-
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -40,7 +37,7 @@ public class Connector {
                                 new BufferedOutputStream(
                                         socket.getOutputStream()
                                 ),
-                                StandardCharsets.UTF_16
+                                StandardCharsets.UTF_8
                         )
                     )
             );
@@ -55,7 +52,7 @@ public class Connector {
                             new BufferedInputStream(
                                     socket.getInputStream()
                             ),
-                            StandardCharsets.UTF_16
+                            StandardCharsets.UTF_8
                     )
             );
         }
