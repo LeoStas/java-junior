@@ -1,10 +1,7 @@
 package com.acme.edu;
 
-import org.apache.commons.io.input.ReaderInputStream;
-
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 /**

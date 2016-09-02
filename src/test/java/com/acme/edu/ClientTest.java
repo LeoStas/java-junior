@@ -1,7 +1,5 @@
 package com.acme.edu;
 
-import com.acme.edu.Client;
-import com.acme.edu.ExitClientException;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,7 +34,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         //Client client = new Client (port, host, mockClientSession);
         String testMessage = "/abc123";
         mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
+        verify(mockClient).printErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
     }
 
     @Test
@@ -48,7 +46,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         //Client client = new Client (port, host, mockClientSession);
         String testMessage = "/snd";
         mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
+        verify(mockClient).printErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
     }
 
     @Test(expected = ExitClientException.class)
@@ -68,7 +66,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         //Client client = new Client (port, host, mockClientSession);
         String testMessage = "/snd";
         mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("\"[WRONG INPUT] Your command contains a mistake.\" + System.lineSeparator() +\n" +
+        verify(mockClient).printErrorMessageToConsole("\"[WRONG INPUT] Your command contains a mistake.\" + System.lineSeparator() +\n" +
                 "                    \"[WRONG INPUT] Your message should be separated from command with space.\"");
     }
 
