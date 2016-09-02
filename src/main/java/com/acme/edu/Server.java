@@ -34,6 +34,10 @@ class Server {
         }
     }
 
+    /**
+     * Start server.
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         new Server();
     }
@@ -74,17 +78,18 @@ class Server {
         @Override
         public void run() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
-            while (true) {
-                try {
+
+            try {
+                while (true) {
                     String msg = in.readLine();
                     if (msg == null) {
                         break;
                     }
                     send(dateFormat.format(new Date()) + msg);
                     System.out.println(msg);
-                } catch (IOException e) {
-                    break;
                 }
+            } catch (IOException e) {
+                System.err.println("/Cannot receive message");
             }
 
             close();
@@ -105,7 +110,7 @@ class Server {
                 out.close();
                 socket.close();
             } catch (IOException e) {
-                System.err.println("/Cannot correct close connection");
+                System.err.println("/Cannot close client connection");
             }
         }
     }
