@@ -4,28 +4,21 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 
 class SessionHandler extends Thread {
     private final Collection<SessionHandler> sessionHandlerList;
     private final Collection<String> users;
-    private final Collection<String> history;
     private final Socket socket;
-    private final int histMsgNum = 5;
     private String user = "anonymous";
     private int lastNum = 0;
     private PrintWriter out;
     private BufferedReader in;
 
 
-    SessionHandler(Socket socket, Collection<SessionHandler> sessionHandlerList, Collection<String> users,
-                   Collection<String> history) {
+    SessionHandler(Socket socket, Collection<SessionHandler> sessionHandlerList, Collection<String> users) {
         this.sessionHandlerList = sessionHandlerList;
         this.users = users;
-        this.history = history;
         this.socket = socket;
         try {
             in = new BufferedReader(
@@ -69,7 +62,6 @@ class SessionHandler extends Thread {
                         } else if (com == 's') {
                             send(msg.substring(5));
                         } else if (com == 'h'){
-                            ;
                         }
                     } else {
                         if (users.add(msg)) {
