@@ -65,7 +65,7 @@ class Server {
         }
     }
 
-    private synchronized void shutdownServer() {
+    synchronized void shutdownServer() {
         sessionHandlerList.forEach(Thread::interrupt);
 
         try {
