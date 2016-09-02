@@ -12,14 +12,13 @@ import java.util.regex.Pattern;
 import static javafx.application.Platform.exit;
 
 class Server {
-    private final int PORT = 1111;
     private final Set<SessionHandler> sessionHandlerSet =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
     private ServerSocket serverSocket;
     private volatile boolean running = true;
 
     Server() throws IOException {
-        serverSocket = new ServerSocket(PORT);
+        serverSocket = new ServerSocket(1111);
     }
 
     /**
@@ -45,12 +44,10 @@ class Server {
                 String s = reader.readLine();
                 Pattern p = Pattern.compile("^/(\\w+)(.*)$");
                 Matcher m = p.matcher(s);
-                if(m.matches()) {
-                    if("exit".equals(m.group(1))) {
-                        running = false;
-                        Server.this.shutdownServer();
-                        pool.shutdown();
-                    }
+                if(m.matches() && "exit".equals(m.group(1))) {
+                    running = false;
+                    Server.this.shutdownServer();
+                    pool.shutdown();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
