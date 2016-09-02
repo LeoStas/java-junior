@@ -55,7 +55,7 @@ public class Server {
                                 new BufferedInputStream(
                                         socket.getInputStream()
                                 ),
-                                StandardCharsets.UTF_16
+                                StandardCharsets.UTF_8
                         )
                 );
                 out = new PrintWriter(
@@ -64,7 +64,7 @@ public class Server {
                                         new BufferedOutputStream(
                                                 socket.getOutputStream()
                                         ),
-                                        StandardCharsets.UTF_16
+                                        StandardCharsets.UTF_8
                                 )
                         )
                 );
@@ -83,9 +83,11 @@ public class Server {
                     String msg = "";
                     for (SessionHandler sessionHandler:sessionHandlerList) {
                         if (sessionHandler == this) {
-                            msg = TextColor.ANSI_GREEN + dateFormat.format(new Date()) + "<- " + rcv_msg + TextColor.ANSI_RESET;
+                            //msg = TextColor.ANSI_GREEN + dateFormat.format(new Date()) + "<- " + rcv_msg + TextColor.ANSI_RESET;
+                            msg = dateFormat.format(new Date()) + "<- " + rcv_msg;
                         } else {
-                            msg = TextColor.ANSI_CYAN + dateFormat.format(new Date()) + "-> " + rcv_msg + TextColor.ANSI_RESET;
+                            //msg = TextColor.ANSI_CYAN + dateFormat.format(new Date()) + "-> " + rcv_msg + TextColor.ANSI_RESET;
+                            msg = dateFormat.format(new Date()) + "-> " + rcv_msg;
                         }
                         sessionHandler.send(msg);
                     }
