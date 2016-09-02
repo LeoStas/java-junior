@@ -1,9 +1,6 @@
 package com.acme.edu;
 
-import com.acme.edu.Client;
-import com.acme.edu.ExitClientException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +32,7 @@ public class ClientTest {
         int port = 1111;
         String host = "localhost";
         ClientSession mockClientSession = mock(ClientSession.class);
-        Client client = new Client(port, host, mockClientSession);
+        Client client = new Client(mockClientSession);
         String testMessage = "/snd this is my test message";
         client.send(testMessage);
         verify(mockClientSession).sendMessage("this is my test message");

@@ -29,12 +29,11 @@ public class Client {
 
     /**
      * main constructor
-     * @param port
      * @param serverName
      * @param cs
      */
-    public Client(int port, String serverName, ClientSession cs) {
-        clientSession = cs;
+    public Client(ClientSession clientSession) {
+        this.clientSession = clientSession;
         clientSession.createSession();
     }
 
@@ -166,7 +165,7 @@ public class Client {
      * @param args
      */
     public static void main(String[] args) {
-        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
+        Client client = new Client(new ClientSession(1111, "localhost"));
         client.process();
     }
 }
