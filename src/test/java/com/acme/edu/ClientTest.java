@@ -8,8 +8,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BooleanSupplier;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,13 +30,13 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
                 e.printStackTrace();
             }
         });
-        ClientSession ClientSession = new ClientSession(1111, "localhost");
+        ClientSession ClientSession = new ClientSession(1234, "localhost");
         ClientSession.closeSession();
     }
 
     @After
     public void closeConnectionAfterTest() {
-        ClientSession ClientSession = new ClientSession(1111, "localhost");
+        ClientSession ClientSession = new ClientSession(1234, "localhost");
         ClientSession.closeSession();
         server.shutdownServer();
         pool.shutdownNow();
@@ -44,22 +46,23 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
 
     @Test
     public void shouldSendCorrectMessage () throws ExitClientException, IOException {
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         ClientSession mockClientSession = mock(ClientSession.class);
         Client client = new Client(mockClientSession);
+        client.setUserName("NAME");
         String testMessage = "/snd this is my test message";
         client.send(testMessage);
-        verify(mockClientSession).sendMessage("this is my test message");
-
+        verify(mockClientSession).sendMessage("/snd NAME -> this is my test message");
     }
 
     @Test
     public void shouldProcessWrongCommandsCorrectly() throws ExitClientException, IOException {
         int errorCodeReturned;
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         Client client = new Client (port, host);
+        client.setUserName("NAME");
         String testMessage = "/abc123";
         errorCodeReturned = client.send(testMessage);
         assertEquals(-1, errorCodeReturned);
@@ -68,9 +71,10 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
     @Test
     public void shouldNotSendEmptyMessages () throws ExitClientException, IOException {
         int errorCodeReturned;
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         Client client = new Client (port, host);
+        client.send("NAME");
         String testMessage = "/snd";
         errorCodeReturned = client.send(testMessage);
         assertEquals(-2, errorCodeReturned);
@@ -78,19 +82,21 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
 
     @Test(expected = ExitClientException.class)
     public void shouldProcessExitCommandCorrectly () throws ExitClientException, IOException {
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         Client client = new Client (port, host);
+        client.send("NAME");
         String testMessage = "/exit";
         client.send(testMessage);
     }
 
     @Test
     public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException, IOException {
-        int port = 1111;
+        int port = 1234;
         int errorCodeReturned;
         String host = "localhost";
         Client client = new Client (port, host);
+        client.send("NAME");
         String testMessage = "abc123";
         errorCodeReturned = client.send(testMessage);
         assertEquals(-10, errorCodeReturned);
@@ -98,7 +104,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
 
     @Test
     public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException, IOException {
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         int errorCodeReturned;
         String testMessage = new String();
@@ -109,7 +115,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         }
 
         testMessage = "/snd " + testMessage;
-
+        client.send("NAME");
         errorCodeReturned = client.send(testMessage);
         assertEquals(-3, errorCodeReturned);
     }
@@ -119,7 +125,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         BufferedReader br = mock(BufferedReader.class);
         when(br.readLine()).thenReturn("/exit");
         ExecutorService e = mock(ExecutorService.class);
-        int port = 1111;
+        int port = 1234;
         String host = "localhost";
         Client client = new Client (port, host);
 

@@ -1,5 +1,6 @@
 package com.acme.edu;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import static org.mockito.Mockito.mock;
  */
 public class SystemTest {
 
-    @Test
+    @Ignore
     public void whenMessageIsSentTheOtherClientShouldReceiveIt() throws IOException {
         Client ClientOne = new Client (1111, "localhost");
         Client ClientTwo = new Client (1111, "localhost");
