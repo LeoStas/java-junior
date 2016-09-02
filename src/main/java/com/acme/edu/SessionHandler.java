@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -14,7 +15,6 @@ class SessionHandler extends Thread {
     private final Socket socket;
     private final int histMsgNum = 5;
     private String user = "anonymous";
-    private boolean startHist = false;
     private int lastNum = 0;
     private PrintWriter out;
     private BufferedReader in;
@@ -53,7 +53,7 @@ class SessionHandler extends Thread {
         String msg;
         boolean hasName = false;
         try {
-            while (!this.isInterrupted()) {
+            while (!this.isInterrupted() && socket.isConnected()) {
                 if (!in.ready()) {
                     sleep(50);
                 } else {
@@ -64,14 +64,16 @@ class SessionHandler extends Thread {
                     if (hasName) {
                         char com = msg.charAt(1);
                         if (com == 'e') {
-                            startHist = false;
                             break;
                         } else if (com == 's') {
-                            startHist = false;
-                            send(msg.substring(4));
+                            send(msg.substring(5));
+                        } else if (com == 'h'){
+                            String hist = "";
+                            for (int i = history.size(); i >= 0 && i > history.size() - histMsgNum; i--) {
+                                ;
+                            }
                         } else {
-                            //if (startHist)
-                            //int n = history.size();
+
                         }
                     } else {
                         if (users.add(msg)) {
