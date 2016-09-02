@@ -16,13 +16,14 @@ import static org.mockito.Mockito.when;
 
 public class ClientTest implements SysoutCaptureAndAssertionAbility {
     private ExecutorService pool;
+    private volatile Server server;
     @Before
-    @After
     public void closeConnectionBeforeTest() {
-        pool = Executors.newSingleThreadExecutor();
+        pool = Executors.newFixedThreadPool(1);
         pool.execute(() -> {
             try {
-                new Server().runServer();
+                server = new Server();
+                server.runServer();
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -35,6 +36,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
     public void closeConnectionAfterTest() {
         ClientSession ClientSession = new ClientSession(1111, "localhost");
         ClientSession.closeSession();
+        server.shutdownServer();
         pool.shutdownNow();
     }
 
