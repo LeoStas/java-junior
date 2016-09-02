@@ -29,8 +29,7 @@ public class Client {
 
     /**
      * main constructor
-     * @param serverName
-     * @param cs
+     * @param clientSession 
      */
     public Client(ClientSession clientSession) {
         this.clientSession = clientSession;
@@ -47,34 +46,42 @@ public class Client {
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
         pool.execute(() -> {
-            try {
-                while (!this.isClosed()) {
-                    System.out.println(this.receive());
-                }
-            } catch (SocketException e) {
-                if(!"Socket closed".equals(e.getMessage())) {
-                    printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                    this.close(false);
-                    pool.shutdownNow();
-                }
-            } catch (IOException e) {
-                printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                this.close(false);
-                pool.shutdownNow();
-            }
+            receiveRunningThread(pool);
 
         });
 
         pool.execute(() -> {
-            try {
-                while(!this.isClosed()) {
-                    if (processAndSendInputString(reader)) return;
-                }
-            } catch (ExitClientException e) {
-                this.close(true);
+            sendRunningThread(reader, pool);
+        });
+    }
+
+    void sendRunningThread(BufferedReader reader, ExecutorService pool) {
+        try {
+            while(!this.isClosed()) {
+                if (processAndSendInputString(reader)) return;
+            }
+        } catch (ExitClientException e) {
+            this.close(true);
+            pool.shutdownNow();
+        }
+    }
+
+    void receiveRunningThread(ExecutorService pool) {
+        try {
+            while (!this.isClosed()) {
+                System.out.println(this.receive());
+            }
+        } catch (SocketException e) {
+            if(!"Socket closed".equals(e.getMessage())) {
+                printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+                this.close(false);
                 pool.shutdownNow();
             }
-        });
+        } catch (IOException e) {
+            printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+            this.close(false);
+            pool.shutdownNow();
+        }
     }
 
     private boolean processAndSendInputString(BufferedReader reader) throws ExitClientException {
@@ -142,8 +149,8 @@ public class Client {
         return null;
     }
 
-    private String receive() throws IOException {
-        if(!closed) {
+    String receive() throws IOException {
+        if(!isClosed()) {
             return clientSession.receiveMessage();
         }
         return "";
@@ -156,7 +163,7 @@ public class Client {
         }
     }
 
-    private boolean isClosed() {
+    boolean isClosed() {
         return closed;
     }
 

@@ -4,11 +4,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ClientTest {
 
@@ -99,7 +102,20 @@ public class ClientTest {
         assertEquals(-3, errorCodeReturned);
     }
 
+    @Test
+    public void shouldCloseClient() throws IOException {
+        BufferedReader br = mock(BufferedReader.class);
+        when(br.readLine()).thenReturn("/exit");
+        ExecutorService e = mock(ExecutorService.class);
+        int port = 1111;
+        String host = "localhost";
+        Client client = new Client (port, host);
 
+        client.sendRunningThread(br, e);
+        assertEquals(client.isClosed(), true);
+        String s = client.receive();
+        assertEquals(s, "");
+    }
 
 
 }
