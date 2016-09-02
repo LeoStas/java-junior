@@ -63,7 +63,12 @@ public class Client {
     void receiveRunningThread(ExecutorService pool) {
         try {
             while (!this.isClosed()) {
-                System.out.println(this.receive());
+                String message;
+                if ((message = this.receive()) != null) {
+                    System.out.println(message);
+                } else {
+                    throw new SocketException("Can't connect to server");
+                }
             }
         } catch (SocketException e) {
             if(!"Socket closed".equals(e.getMessage())) {
