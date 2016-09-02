@@ -42,10 +42,32 @@ public class Client {
 
     private void process() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        identifyUser(reader);
+
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
         pool.execute(() -> receiveRunningThread(pool));
         pool.execute(() -> sendRunningThread(reader, pool));
+    }
+
+    private void identifyUser(BufferedReader reader) {
+        try {
+            while(true) {
+                System.out.print("Enter your name: ");
+                String name = reader.readLine();
+                clientSession.sendMessage(name);
+                System.out.print("Waiting for server...");
+                String userOk = receive();
+                if("true".equals(userOk)) {
+                    System.out.println("\rSuccessfully connected!");
+                    break;
+                } else {
+                    System.out.println("\rTry again!");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void sendRunningThread(BufferedReader reader, ExecutorService pool) {
