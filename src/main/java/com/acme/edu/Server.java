@@ -48,6 +48,11 @@ class Server {
 
     private synchronized void shutdownServer() {
         sessionHandlerSet.forEach(SessionHandler::close);
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            System.err.println("/Cannot finish server");
+        }
     }
 
     private class SessionHandler extends Thread {
@@ -90,20 +95,19 @@ class Server {
                     }
                     send(msg);
                 }
-            } catch (IOException ignored) {
-            }
+            } catch (IOException ignored) {}
 
             close();
         }
 
         private synchronized void send(String msg) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
-            msg = dateFormat.format(new Date()) + msg;
+            String sndMsg = dateFormat.format(new Date()) + msg;
             for (SessionHandler sessionHandler:sessionHandlerSet) {
-                sessionHandler.out.println(msg);
+                sessionHandler.out.println(sndMsg);
                 sessionHandler.out.flush();
             }
-            System.out.println(msg);
+            System.out.println(sndMsg);
         }
 
         private void close() {
