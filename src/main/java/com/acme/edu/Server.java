@@ -37,8 +37,6 @@ class Server {
     }
 
     private void runServer() {
-        final int maxClientNumber = 10000;
-        int curClientNumber = 0;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -59,21 +57,19 @@ class Server {
             }
         });
 
-        while (running && (curClientNumber < maxClientNumber)) {
-            curClientNumber++;
+        while (running) {
             try {
                 Socket client = serverSocket.accept();
                 SessionHandler sessionHandler = new SessionHandler(client, sessionHandlerSet);
                 sessionHandlerSet.add(sessionHandler);
                 sessionHandler.start();
-            } catch (IOException e) {
-                System.err.println("/Cannot accept client");
-            }
+            } catch (IOException ignored) {}
         }
     }
 
     private synchronized void shutdownServer() {
-        sessionHandlerSet.forEach(SessionHandler::close);
+        sessionHandlerSet.forEach(Thread::interrupt);
+
         try {
             serverSocket.close();
         } catch (IOException e) {

@@ -42,16 +42,21 @@ class SessionHandler extends Thread {
     public void run() {
         String msg;
         try {
-            while (true) {
-                msg = in.readLine();
-                if (msg == null) {
-                    break;
+            while (!this.isInterrupted()) {
+                if (!in.ready()) {
+                    sleep(50);
+                } else {
+                    msg = in.readLine();
+                    if (msg == null) {
+                        break;
+                    }
+                    send(msg);
                 }
-                send(msg);
             }
-        } catch (IOException ignored) {}
+        } catch (IOException | InterruptedException ignored) {}
 
         close();
+        sessionHandlerSet.remove(this);
     }
 
     private synchronized void send(String msg) {
@@ -64,9 +69,8 @@ class SessionHandler extends Thread {
         System.out.println(sndMsg);
     }
 
-    void close() {
+    private void close() {
         System.err.println("/Close connection");
-        sessionHandlerSet.remove(this);
         try {
             in.close();
             out.close();
