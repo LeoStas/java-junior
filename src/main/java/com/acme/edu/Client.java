@@ -13,8 +13,9 @@ import java.util.regex.Pattern;
  * main client class
  */
 public class Client {
-    private static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server" + System.lineSeparator() + "Press Enter to exit.";
+    private static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server! Press Enter to exit...";
     private ClientSession clientSession;
+    private String userName;
     private volatile boolean closed = false;
 
     /**
@@ -37,37 +38,43 @@ public class Client {
     }
 
     private static void printErrorMessageToConsole(String message) {
-        System.err.println(message);
+        System.err.println("\r"+message);
     }
 
     private void process() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        identifyUser(reader);
+        if(identifyUser(reader) == 0) {
+            ExecutorService pool = Executors.newFixedThreadPool(2);
 
-        ExecutorService pool = Executors.newFixedThreadPool(2);
-
-        pool.execute(() -> receiveRunningThread(pool));
-        pool.execute(() -> sendRunningThread(reader, pool));
+            pool.execute(() -> receiveRunningThread(pool));
+            pool.execute(() -> sendRunningThread(reader, pool));
+        }
     }
 
-    private void identifyUser(BufferedReader reader) {
+    private int identifyUser(BufferedReader reader) {
         try {
             while(true) {
                 System.out.print("Enter your name: ");
                 String name = reader.readLine();
                 clientSession.sendMessage(name);
-                System.out.print("Waiting for server...");
                 String userOk = receive();
                 if("true".equals(userOk)) {
                     System.out.println("\rSuccessfully connected!");
-                    break;
+                    userName = name;
+                    return 0;
                 } else {
                     System.out.println("\rTry again!");
                 }
             }
+        } catch (SocketException e) {
+            if(!"Socket closed".equals(e.getMessage())) {
+                printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+                this.close(false);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return -1;
     }
 
     void sendRunningThread(BufferedReader reader, ExecutorService pool) {
@@ -140,11 +147,21 @@ public class Client {
         switch (m.group(1)) {
             case "snd":
                 String text = m.group(2);
-                Integer x = processSendCommand(text);
+                text = text.trim();
+                if(text.length() < 1) {
+                    printErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
+                    return -2;
+                } else if (text.length() > 150) {
+                    printErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
+                    return -3;
+                }
+                text = "/snd " + userName + " -> " + text;
+                Integer x = sendCommand(text);
                 if (x != null)
                     return x;
                 break;
             case "exit":
+                sendCommand("/exit");
                 throw new ExitClientException();
             default:
                 printErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
@@ -153,17 +170,9 @@ public class Client {
         return null;
     }
 
-    private Integer processSendCommand(String text) {
-        if(text.length() < 2) {
-            printErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
-            return -2;
-        } else if (text.length() > 151) {
-            printErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
-            return -3;
-        }
-        String textWithoutFirstSpace = text.substring(1);
+    private Integer sendCommand(String text) {
         try {
-            clientSession.sendMessage(textWithoutFirstSpace);
+            clientSession.sendMessage(text);
         } catch (IOException e) {
             e.printStackTrace();
         }
