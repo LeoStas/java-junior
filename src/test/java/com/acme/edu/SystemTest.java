@@ -14,8 +14,8 @@ public class SystemTest {
 
     @Ignore
     public void whenMessageIsSentTheOtherClientShouldReceiveIt() throws IOException {
-        Client ClientOne = new Client (1111, "localhost");
-        Client ClientTwo = new Client (1111, "localhost");
+        Client ClientOne = new Client (666, "localhost");
+        Client ClientTwo = new Client (666, "localhost");
 
         Client mockClient = mock(Client.class);
 
