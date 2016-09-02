@@ -25,7 +25,7 @@ class Server {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        (new Server()).run();
+        new Server().run();
     }
 
     private void run() {
@@ -48,6 +48,11 @@ class Server {
 
     private synchronized void shutdownServer() {
         sessionHandlerSet.forEach(SessionHandler::close);
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            System.err.println("/Cannot finish server");
+        }
     }
 
     private class SessionHandler extends Thread {
