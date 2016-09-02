@@ -1,23 +1,32 @@
 package com.acme.edu;
 
-import com.acme.edu.Client;
-import com.acme.edu.ExitClientException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class ClientTest {
-
+public class ClientTest implements SysoutCaptureAndAssertionAbility {
+    private ExecutorService pool;
     @Before
     @After
     public void closeConnectionBeforeTest() {
+        pool = Executors.newSingleThreadExecutor();
+        pool.execute(() -> {
+            try {
+                new Server().runServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         ClientSession ClientSession = new ClientSession(1111, "localhost");
         ClientSession.closeSession();
     }
@@ -26,6 +35,7 @@ public class ClientTest {
     public void closeConnectionAfterTest() {
         ClientSession ClientSession = new ClientSession(1111, "localhost");
         ClientSession.closeSession();
+        pool.shutdownNow();
     }
 
 
@@ -35,7 +45,7 @@ public class ClientTest {
         int port = 1111;
         String host = "localhost";
         ClientSession mockClientSession = mock(ClientSession.class);
-        Client client = new Client(port, host, mockClientSession);
+        Client client = new Client(mockClientSession);
         String testMessage = "/snd this is my test message";
         client.send(testMessage);
         verify(mockClientSession).sendMessage("this is my test message");
@@ -43,7 +53,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldProcessWrongCommandsCorrectly() throws ExitClientException {
+    public void shouldProcessWrongCommandsCorrectly() throws ExitClientException, IOException {
         int errorCodeReturned;
         int port = 1111;
         String host = "localhost";
@@ -54,7 +64,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldNotSendEmptyMessages () throws ExitClientException {
+    public void shouldNotSendEmptyMessages () throws ExitClientException, IOException {
         int errorCodeReturned;
         int port = 1111;
         String host = "localhost";
@@ -65,7 +75,7 @@ public class ClientTest {
     }
 
     @Test(expected = ExitClientException.class)
-    public void shouldProcessExitCommandCorrectly () throws ExitClientException {
+    public void shouldProcessExitCommandCorrectly () throws ExitClientException, IOException {
         int port = 1111;
         String host = "localhost";
         Client client = new Client (port, host);
@@ -74,7 +84,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException {
+    public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException, IOException {
         int port = 1111;
         int errorCodeReturned;
         String host = "localhost";
@@ -85,7 +95,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException {
+    public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException, IOException {
         int port = 1111;
         String host = "localhost";
         int errorCodeReturned;
@@ -102,7 +112,19 @@ public class ClientTest {
         assertEquals(-3, errorCodeReturned);
     }
 
+    @Test
+    public void shouldCloseClient() throws IOException {
+        BufferedReader br = mock(BufferedReader.class);
+        when(br.readLine()).thenReturn("/exit");
+        ExecutorService e = mock(ExecutorService.class);
+        int port = 1111;
+        String host = "localhost";
+        Client client = new Client (port, host);
 
-
+        client.sendRunningThread(br, e);
+        assertEquals(client.isClosed(), true);
+        String s = client.receive();
+        assertEquals(s, "");
+    }
 
 }

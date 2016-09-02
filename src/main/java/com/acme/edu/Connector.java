@@ -70,17 +70,13 @@ public class Connector {
     /**
      * connects to server and sets output stream
      */
-    void connect() {
+    void connect() throws IOException {
         if (isConnected()) {
             return;
         }
-        try {
-            socket = new Socket(serverName, port);
-            out = getOutput();
-            in = getInput();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        socket = new Socket(serverName, port);
+        out = getOutput();
+        in = getInput();
     }
 
     /**

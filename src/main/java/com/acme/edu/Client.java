@@ -22,19 +22,17 @@ public class Client {
      * @param port
      * @param serverName
      */
-    public Client(int port, String serverName) {
+    public Client(int port, String serverName) throws IOException {
         clientSession = new ClientSession(port, serverName);
         clientSession.createSession();
     }
 
     /**
      * main constructor
-     * @param port
-     * @param serverName
-     * @param cs
+     * @param clientSession 
      */
-    public Client(int port, String serverName, ClientSession cs) {
-        clientSession = cs;
+    public Client(ClientSession clientSession) throws IOException {
+        this.clientSession = clientSession;
         clientSession.createSession();
     }
 
@@ -44,38 +42,40 @@ public class Client {
 
     private void process() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
-        pool.execute(() -> {
-            try {
-                while (!this.isClosed()) {
-                    System.out.println(this.receive());
-                }
-            } catch (SocketException e) {
-                if(!"Socket closed".equals(e.getMessage())) {
-                    printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                    this.close(false);
-                    pool.shutdownNow();
-                }
-            } catch (IOException e) {
+        pool.execute(() -> receiveRunningThread(pool));
+        pool.execute(() -> sendRunningThread(reader, pool));
+    }
+
+    void sendRunningThread(BufferedReader reader, ExecutorService pool) {
+        try {
+            while(!this.isClosed()) {
+                if (processAndSendInputString(reader))
+                    return;
+            }
+        } catch (ExitClientException e) {
+            this.close(true);
+            pool.shutdownNow();
+        }
+    }
+
+    void receiveRunningThread(ExecutorService pool) {
+        try {
+            while (!this.isClosed()) {
+                System.out.println(this.receive());
+            }
+        } catch (SocketException e) {
+            if(!"Socket closed".equals(e.getMessage())) {
                 printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
                 this.close(false);
                 pool.shutdownNow();
             }
-
-        });
-
-        pool.execute(() -> {
-            try {
-                while(!this.isClosed()) {
-                    if (processAndSendInputString(reader)) return;
-                }
-            } catch (ExitClientException e) {
-                this.close(true);
-                pool.shutdownNow();
-            }
-        });
+        } catch (IOException e) {
+            printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+            this.close(false);
+            pool.shutdownNow();
+        }
     }
 
     private boolean processAndSendInputString(BufferedReader reader) throws ExitClientException {
@@ -143,8 +143,8 @@ public class Client {
         return null;
     }
 
-    private String receive() throws IOException {
-        if(!closed) {
+    String receive() throws IOException {
+        if(!isClosed()) {
             return clientSession.receiveMessage();
         }
         return "";
@@ -157,7 +157,7 @@ public class Client {
         }
     }
 
-    private boolean isClosed() {
+    boolean isClosed() {
         return closed;
     }
 
@@ -166,8 +166,14 @@ public class Client {
      * @param args
      */
     public static void main(String[] args) {
-        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
-        client.process();
+        Client client;
+        try {
+            client = new Client(new ClientSession(1111, "localhost"));
+            client.process();
+        } catch (IOException e) {
+            System.err.println("Can't connect to server. Press Enter to exit...");
+            new java.util.Scanner(System.in).nextLine();
+        }
     }
 }
 
