@@ -10,26 +10,12 @@ import java.util.*;
 class Server {
     private final Set<SessionHandler> sessionHandlerSet =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
+    private ServerSocket serverSocket;
 
     private Server() {
-        final int maxClientNumber = 10000;
-        int curClientNumber = 0;
-        try (
-                ServerSocket serverSocket = new ServerSocket(1111))
-        {
-                while (curClientNumber < maxClientNumber) {
-                    curClientNumber++;
-                    try {
-                        Socket client = serverSocket.accept();
-                        SessionHandler sessionHandler = new SessionHandler(client);
-                        sessionHandlerSet.add(sessionHandler);
-                        sessionHandler.start();
-                    } catch (IOException e) {
-                        System.err.println("/Cannot accept client");
-                    }
-                }
+        try {
+            serverSocket = new ServerSocket(1111);
         } catch (IOException e) {
-            shutdownServer();
             System.err.println("/Cannot start service");
         }
     }
@@ -39,7 +25,25 @@ class Server {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        new Server();
+        (new Server()).run();
+    }
+
+    private void run() {
+        final int maxClientNumber = 10000;
+        int curClientNumber = 0;
+        while (curClientNumber < maxClientNumber) {
+            curClientNumber++;
+            try {
+                Socket client = serverSocket.accept();
+                SessionHandler sessionHandler = new SessionHandler(client);
+                sessionHandlerSet.add(sessionHandler);
+                sessionHandler.start();
+            } catch (IOException e) {
+                System.err.println("/Cannot accept client");
+            }
+        }
+
+        shutdownServer();
     }
 
     private synchronized void shutdownServer() {
@@ -77,29 +81,29 @@ class Server {
 
         @Override
         public void run() {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
-
+            String msg;
             try {
                 while (true) {
-                    String msg = in.readLine();
+                    msg = in.readLine();
                     if (msg == null) {
                         break;
                     }
-                    send(dateFormat.format(new Date()) + msg);
-                    System.out.println(msg);
+                    send(msg);
                 }
-            } catch (IOException e) {
-                System.err.println("/Cannot receive message");
+            } catch (IOException ignored) {
             }
 
             close();
         }
 
         private synchronized void send(String msg) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
+            msg = dateFormat.format(new Date()) + msg;
             for (SessionHandler sessionHandler:sessionHandlerSet) {
                 sessionHandler.out.println(msg);
                 sessionHandler.out.flush();
             }
+            System.out.println(msg);
         }
 
         private void close() {
