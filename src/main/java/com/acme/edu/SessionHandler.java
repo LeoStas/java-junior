@@ -11,7 +11,7 @@ class SessionHandler extends Thread {
     private final Collection<SessionHandler> sessionHandlerList;
     private final Socket socket;
     private final Collection<String> users;
-    private String user;
+    private String user = "anonymous";
     private PrintWriter out;
     private BufferedReader in;
 
