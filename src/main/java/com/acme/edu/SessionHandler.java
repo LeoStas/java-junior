@@ -4,17 +4,20 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 class SessionHandler extends Thread {
-    private final Set<SessionHandler> sessionHandlerSet;
+    private final Collection<SessionHandler> sessionHandlerList;
     private final Socket socket;
+    private final Collection<String> users;
+    private String user;
     private PrintWriter out;
     private BufferedReader in;
 
-    SessionHandler(Socket socket, Set<SessionHandler> sessionHandlerSet) {
-        this.sessionHandlerSet = sessionHandlerSet;
+    SessionHandler(Socket socket, Collection<SessionHandler> sessionHandlerList, Collection<String> users) {
+        this.sessionHandlerList = sessionHandlerList;
+        this.users = users;
         this.socket = socket;
         try {
             in = new BufferedReader(
@@ -41,6 +44,7 @@ class SessionHandler extends Thread {
     @Override
     public void run() {
         String msg;
+        boolean hasName = false;
         try {
             while (!this.isInterrupted()) {
                 if (!in.ready()) {
@@ -50,19 +54,39 @@ class SessionHandler extends Thread {
                     if (msg == null) {
                         break;
                     }
-                    send(msg);
+                    if (hasName) {
+                        send(msg);
+                    } else {
+                        if (users.add(msg)) {
+                            out.println("true");
+                            user = msg;
+                            System.err.println("/New user: " + user);
+                            hasName = true;
+                        } else {
+                            out.println("false");
+                            System.err.println("/Duplicate user: " + msg);
+                        }
+                        out.flush();
+                    }
                 }
             }
         } catch (IOException | InterruptedException ignored) {}
 
         close();
-        sessionHandlerSet.remove(this);
+
+        synchronized (sessionHandlerList) {
+            sessionHandlerList.remove(this);
+        }
+
+        synchronized (users) {
+            users.remove(user);
+        }
     }
 
     private synchronized void send(String msg) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
         String sndMsg = dateFormat.format(new Date()) + msg;
-        for (SessionHandler sessionHandler:sessionHandlerSet) {
+        for (SessionHandler sessionHandler: sessionHandlerList) {
             sessionHandler.out.println(sndMsg);
             sessionHandler.out.flush();
         }
@@ -70,7 +94,7 @@ class SessionHandler extends Thread {
     }
 
     private void close() {
-        System.err.println("/Close connection");
+        System.err.println("/Exit user: " + user);
         try {
             in.close();
             out.close();

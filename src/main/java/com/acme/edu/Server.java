@@ -12,8 +12,9 @@ import java.util.regex.Pattern;
 import static javafx.application.Platform.exit;
 
 class Server {
-    private final Set<SessionHandler> sessionHandlerSet =
-            Collections.synchronizedSet(new HashSet<SessionHandler>());
+    private final Collection<SessionHandler> sessionHandlerList =
+            Collections.synchronizedList(new LinkedList<SessionHandler>());
+    private final Collection<String> users = Collections.synchronizedSet(new HashSet<String>());
     private ServerSocket serverSocket;
     private volatile boolean running = true;
 
@@ -57,15 +58,15 @@ class Server {
         while (running) {
             try {
                 Socket client = serverSocket.accept();
-                SessionHandler sessionHandler = new SessionHandler(client, sessionHandlerSet);
-                sessionHandlerSet.add(sessionHandler);
+                SessionHandler sessionHandler = new SessionHandler(client, sessionHandlerList, users);
+                sessionHandlerList.add(sessionHandler);
                 sessionHandler.start();
             } catch (IOException ignored) {}
         }
     }
 
     private synchronized void shutdownServer() {
-        sessionHandlerSet.forEach(Thread::interrupt);
+        sessionHandlerList.forEach(Thread::interrupt);
 
         try {
             serverSocket.close();
