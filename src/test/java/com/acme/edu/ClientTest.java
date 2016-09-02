@@ -27,34 +27,29 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
 
     }
 
-    /*@Test
-    public void shouldProcessWrongCommandsCorrectly() {
+    @Test
+    public void shouldProcessWrongCommandsCorrectly() throws ExitClientException {
         int port = 1111;
         String host = "localhost";
-        Client client = new Client (port, host, null);
-        String testMessage = "abc123";
-        try {
-            client.send(testMessage);
-            assertSysoutContains ("[WRONG INPUT]");
-        } catch (ExitClientException e) {
-            e.printStackTrace();
-        }
-
+        ClientSession mockClientSession = mock(ClientSession.class);
+        Client mockClient = mock(Client.class);
+        //Client client = new Client (port, host, mockClientSession);
+        String testMessage = "/abc123";
+        mockClient.send(testMessage);
+        verify(mockClient).PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
     }
 
     @Test
-    public void shouldNotSendEmptyMessages () {
-        int port = 1111;
-        String host = "localhost";
-        Client client = new Client (port, host, null);
-        String testMessage = "";
-        try {
-            client.send(testMessage);
-            assertSysoutContains ("[EMPTY MESSAGE]");
-        } catch (ExitClientException e) {
-            e.printStackTrace();
-        }
-    }*/
+    public void shouldNotSendEmptyMessages () throws ExitClientException {
+        //int port = 1111;
+        //String host = "localhost";
+        ClientSession mockClientSession = mock(ClientSession.class);
+        Client mockClient = mock(Client.class);
+        //Client client = new Client (port, host, mockClientSession);
+        String testMessage = "/snd";
+        mockClient.send(testMessage);
+        verify(mockClient).PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
+    }
 
     @Test(expected = ExitClientException.class)
     public void shouldProcessExitCommandCorrectly () throws ExitClientException {
@@ -64,6 +59,17 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         Client client = new Client (port, host, mockClientSession);
         String testMessage = "/exit";
         client.send(testMessage);
+    }
+
+    @Test
+    public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException {
+        ClientSession mockClientSession = mock(ClientSession.class);
+        Client mockClient = mock(Client.class);
+        //Client client = new Client (port, host, mockClientSession);
+        String testMessage = "/snd";
+        mockClient.send(testMessage);
+        verify(mockClient).PrintErrorMessageToConsole("\"[WRONG INPUT] Your command contains a mistake.\" + System.lineSeparator() +\n" +
+                "                    \"[WRONG INPUT] Your message should be separated from command with space.\"");
     }
 
 

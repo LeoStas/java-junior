@@ -24,7 +24,7 @@ public class Client {
         clientSession.createSession();
     }
 
-    private static void PrintErrorMessageToConsole(String message) {
+    public static void PrintErrorMessageToConsole(String message) {
         System.out.println(TextColor.ANSI_RED + message + TextColor.ANSI_RESET);
     }
 
