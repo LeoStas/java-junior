@@ -7,7 +7,6 @@ import java.io.IOException;
  */
 class ClientSession {
     private Connector connector;
-    private final Object monitor1 = new Object();
 
     /**
      * Constructor
@@ -44,9 +43,7 @@ class ClientSession {
      * @throws IOException can't connect
      */
     String receiveMessage() throws IOException {
-//        synchronized (monitor1) {
             return connector.getInput().readLine();
-//        }
     }
 
     /**

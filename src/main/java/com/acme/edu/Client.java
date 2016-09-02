@@ -9,30 +9,43 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * main client class
+ */
 public class Client {
     private static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server" + System.lineSeparator() + "Press Enter to exit.";
     private ClientSession clientSession;
     private volatile boolean closed = false;
 
+    /**
+     * constructor for testing
+     * @param port
+     * @param serverName
+     */
     public Client(int port, String serverName) {
         clientSession = new ClientSession(port, serverName);
         clientSession.createSession();
     }
 
+    /**
+     * main constructor
+     * @param port
+     * @param serverName
+     * @param cs
+     */
     public Client(int port, String serverName, ClientSession cs) {
         clientSession = cs;
         clientSession.createSession();
     }
 
-    public static void printErrorMessageToConsole(String message) {
+    private static void printErrorMessageToConsole(String message) {
         System.err.println(message);
     }
 
     /**
      * @param message message to send
      */
-    public int send(String message) throws ExitClientException {
+    int send(String message) throws ExitClientException {
         if (closed)
             return -5;
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
@@ -102,7 +115,7 @@ public class Client {
         return closed;
     }
 
-    public void process() {
+    private void process() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
@@ -148,6 +161,10 @@ public class Client {
         return false;
     }
 
+    /**
+     * main single client method
+     * @param args
+     */
     public static void main(String[] args) {
         Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
         client.process();

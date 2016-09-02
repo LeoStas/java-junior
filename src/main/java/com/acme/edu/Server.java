@@ -25,7 +25,7 @@ class Server {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        (new Server()).run();
+        new Server().run();
     }
 
     private void run() {
