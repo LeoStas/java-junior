@@ -18,7 +18,7 @@ class Server {
     private ServerSocket serverSocket;
     private volatile boolean running = true;
 
-    private Server() throws IOException {
+    Server() throws IOException {
         serverSocket = new ServerSocket(PORT);
     }
 
@@ -36,7 +36,7 @@ class Server {
         }
     }
 
-    private void runServer() {
+    void runServer() {
         final int maxClientNumber = 10000;
         int curClientNumber = 0;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

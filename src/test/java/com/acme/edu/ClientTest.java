@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -14,10 +15,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ClientTest implements SysoutCaptureAndAssertionAbility {
-
+    private ExecutorService pool;
     @Before
     @After
     public void closeConnectionBeforeTest() {
+        pool = Executors.newSingleThreadExecutor();
+        pool.execute(() -> {
+            try {
+                new Server().runServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         ClientSession ClientSession = new ClientSession(1111, "localhost");
         ClientSession.closeSession();
     }
@@ -26,6 +35,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
     public void closeConnectionAfterTest() {
         ClientSession ClientSession = new ClientSession(1111, "localhost");
         ClientSession.closeSession();
+        pool.shutdownNow();
     }
 
 
