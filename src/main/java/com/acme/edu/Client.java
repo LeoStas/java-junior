@@ -15,6 +15,15 @@ import java.util.regex.Pattern;
 public class Client {
     private static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server! Press Enter to exit...";
     private ClientSession clientSession;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     private String userName;
     private volatile boolean closed = false;
 
