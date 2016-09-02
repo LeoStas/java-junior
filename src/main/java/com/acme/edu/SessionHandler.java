@@ -53,7 +53,7 @@ class SessionHandler extends Thread {
         String msg;
         boolean hasName = false;
         try {
-            while (!this.isInterrupted() && socket.isConnected()) {
+            while (!this.isInterrupted()) {
                 if (!in.ready()) {
                     sleep(50);
                 } else {
