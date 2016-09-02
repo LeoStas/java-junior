@@ -13,17 +13,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Created by Java_4 on 01.09.2016.
- */
 public class ClientTest {
 
-
     @Before
-    public void openConnectionBeforeTest() {
-        int port = 1111;
-        String host = "localhost";
-        Client client = new Client(port, host);
+    @After
+    public void closeConnectionBeforeTest() {
+        ClientSession ClientSession = new ClientSession(1111, "localhost");
+        ClientSession.closeSession();
     }
 
     @After
@@ -36,9 +32,11 @@ public class ClientTest {
 
     @Test
     public void shouldSendCorrectMessage () throws ExitClientException, IOException {
-
+        int port = 1111;
+        String host = "localhost";
         ClientSession mockClientSession = mock(ClientSession.class);
-        String testMessage = new String("/snd this is my test message");
+        Client client = new Client(port, host, mockClientSession);
+        String testMessage = "/snd this is my test message";
         client.send(testMessage);
         verify(mockClientSession).sendMessage("this is my test message");
 
@@ -46,12 +44,6 @@ public class ClientTest {
 
     @Test
     public void shouldProcessWrongCommandsCorrectly() throws ExitClientException {
-        /*
-        //ClientSession mockClientSession = mock(ClientSession.class);
-        Client mockClient = mock(Client.class);
-        //
-        mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");*/
         int errorCodeReturned;
         int port = 1111;
         String host = "localhost";
@@ -63,35 +55,33 @@ public class ClientTest {
 
     @Test
     public void shouldNotSendEmptyMessages () throws ExitClientException {
-        //int port = 1111;
-        //String host = "localhost";
-        //ClientSession mockClientSession = mock(ClientSession.class);
-        Client mockClient = mock(Client.class);
-        //Client client = new Client (port, host, mockClientSession);
+        int errorCodeReturned;
+        int port = 1111;
+        String host = "localhost";
+        Client client = new Client (port, host);
         String testMessage = "/snd";
-        mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
+        errorCodeReturned = client.send(testMessage);
+        assertEquals(-2, errorCodeReturned);
     }
 
     @Test(expected = ExitClientException.class)
     public void shouldProcessExitCommandCorrectly () throws ExitClientException {
         int port = 1111;
         String host = "localhost";
-        ClientSession mockClientSession = mock(ClientSession.class);
-        Client client = new Client (port, host, mockClientSession);
+        Client client = new Client (port, host);
         String testMessage = "/exit";
         client.send(testMessage);
     }
 
     @Test
     public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException {
-        //ClientSession mockClientSession = mock(ClientSession.class);
-        Client mockClient = mock(Client.class);
-        //Client client = new Client (port, host, mockClientSession);
+        int port = 1111;
+        int errorCodeReturned;
+        String host = "localhost";
+        Client client = new Client (port, host);
         String testMessage = "abc123";
-        mockClient.send(testMessage);
-        verify(mockClient).PrintErrorMessageToConsole("\"[WRONG INPUT] Your command contains a mistake.\" + System.lineSeparator() +\n" +
-                "                    \"[WRONG INPUT] Your message should be separated from command with space.\"");
+        errorCodeReturned = client.send(testMessage);
+        assertEquals(-10, errorCodeReturned);
     }
 
 
