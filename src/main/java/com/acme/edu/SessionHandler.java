@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 class SessionHandler extends Thread {
     private final Collection<SessionHandler> sessionHandlerList;
@@ -68,12 +69,7 @@ class SessionHandler extends Thread {
                         } else if (com == 's') {
                             send(msg.substring(5));
                         } else if (com == 'h'){
-                            String hist = "";
-                            for (int i = history.size(); i >= 0 && i > history.size() - histMsgNum; i--) {
-                                ;
-                            }
-                        } else {
-
+                            ;
                         }
                     } else {
                         if (users.add(msg)) {
@@ -93,13 +89,8 @@ class SessionHandler extends Thread {
 
         close();
 
-        synchronized (sessionHandlerList) {
-            sessionHandlerList.remove(this);
-        }
-
-        synchronized (users) {
-            users.remove(user);
-        }
+        sessionHandlerList.remove(this);
+        users.remove(user);
     }
 
     private synchronized void send(String msg) {
