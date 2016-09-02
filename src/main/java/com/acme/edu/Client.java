@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 
 public class Client {
-    public static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server";
+    public static final String ERROR_CAN_T_CONNECT_TO_SERVER = "[ERROR] Can't connect to server" + System.lineSeparator() + "Press Enter to exit.";
     private ClientSession clientSession;
     private volatile boolean closed = false;
 
@@ -104,26 +104,25 @@ public class Client {
         Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        ExecutorService pool = Executors.newCachedThreadPool();
+        ExecutorService pool = Executors.newFixedThreadPool(2);
 
         pool.execute(() -> {
-            while (!client.isClosed()) {
-                try {
+            try {
+                while (!client.isClosed()) {
                     System.out.println(client.receive());
-                } catch (SocketException e) {
-                    if(!"Socket closed".equals(e.getMessage())) {
-                        printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                        client.close(false);
-                        pool.shutdownNow();
-                        return;
-                    }
-                } catch (IOException e) {
+                }
+            } catch (SocketException e) {
+                if(!"Socket closed".equals(e.getMessage())) {
                     printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
                     client.close(false);
                     pool.shutdownNow();
-                    return;
                 }
+            } catch (IOException e) {
+                printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+                client.close(false);
+                pool.shutdownNow();
             }
+
         });
 
         pool.execute(() -> {
