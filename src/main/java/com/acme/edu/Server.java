@@ -4,18 +4,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
-public class Server {
-    public static Set<SessionHandler> sessionHandlerList =
+class Server {
+    private Set<SessionHandler> sessionHandlerList =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
-
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
 
     private Server() {
         final int maxClientNumber = 10000;
@@ -36,10 +30,12 @@ public class Server {
         }
     }
 
+    public static void main(String[] args) {
+        Server server = new Server();
+    }
+
     private synchronized void shutdownServer() {
-        for (SessionHandler sessionHandler: sessionHandlerList) {
-            sessionHandler.close();
-        }
+        sessionHandlerList.forEach(SessionHandler::close);
     }
 
     private class SessionHandler extends Thread {
@@ -47,15 +43,14 @@ public class Server {
         private PrintWriter out;
         private BufferedReader in;
 
-        public SessionHandler(Socket socket) {
+        SessionHandler(Socket socket) {
             this.socket = socket;
             try {
                 in = new BufferedReader(
                         new InputStreamReader(
                                 new BufferedInputStream(
                                         socket.getInputStream()
-                                ),
-                                StandardCharsets.UTF_8
+                                ), StandardCharsets.UTF_8
                         )
                 );
                 out = new PrintWriter(
@@ -63,8 +58,7 @@ public class Server {
                                 new OutputStreamWriter(
                                         new BufferedOutputStream(
                                                 socket.getOutputStream()
-                                        ),
-                                        StandardCharsets.UTF_8
+                                        ), StandardCharsets.UTF_8
                                 )
                         )
                 );
@@ -77,20 +71,11 @@ public class Server {
             SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
             while (true) {
                 try {
-                    String rcv_msg = in.readLine();
-                    if (rcv_msg == null) break;
-
-                    String msg = "";
-                    for (SessionHandler sessionHandler:sessionHandlerList) {
-                        if (sessionHandler == this) {
-                            //msg = TextColor.ANSI_GREEN + dateFormat.format(new Date()) + "<- " + rcv_msg + TextColor.ANSI_RESET;
-                            msg = dateFormat.format(new Date()) + "<- " + rcv_msg;
-                        } else {
-                            //msg = TextColor.ANSI_CYAN + dateFormat.format(new Date()) + "-> " + rcv_msg + TextColor.ANSI_RESET;
-                            msg = dateFormat.format(new Date()) + "-> " + rcv_msg;
-                        }
-                        sessionHandler.send(msg);
+                    String msg = in.readLine();
+                    if (msg == null) {
+                        break;
                     }
+                    send(dateFormat.format(new Date()) + msg);
                     System.out.println(msg);
                 } catch (IOException e) {
                     break;
@@ -100,14 +85,15 @@ public class Server {
             close();
         }
 
-        public synchronized void send(String msg) {
-            out.println(msg);
-            out.flush();
+        private synchronized void send(String msg) {
+            for (SessionHandler sessionHandler:sessionHandlerList) {
+                sessionHandler.out.println(msg);
+                sessionHandler.out.flush();
+            }
         }
 
-        void close() {
-            System.out.println("Close connection");
-            System.out.println();
+        private void close() {
+            System.out.println("/Close connection");
             sessionHandlerList.remove(this);
             try {
                 in.close();
