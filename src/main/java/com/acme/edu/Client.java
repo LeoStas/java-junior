@@ -22,7 +22,7 @@ public class Client {
      * @param port
      * @param serverName
      */
-    public Client(int port, String serverName) {
+    public Client(int port, String serverName) throws IOException {
         clientSession = new ClientSession(port, serverName);
         clientSession.createSession();
     }
@@ -31,7 +31,7 @@ public class Client {
      * main constructor
      * @param clientSession 
      */
-    public Client(ClientSession clientSession) {
+    public Client(ClientSession clientSession) throws IOException {
         this.clientSession = clientSession;
         clientSession.createSession();
     }
@@ -42,23 +42,17 @@ public class Client {
 
     private void process() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
         ExecutorService pool = Executors.newFixedThreadPool(2);
 
-        pool.execute(() -> {
-            receiveRunningThread(pool);
-
-        });
-
-        pool.execute(() -> {
-            sendRunningThread(reader, pool);
-        });
+        pool.execute(() -> receiveRunningThread(pool));
+        pool.execute(() -> sendRunningThread(reader, pool));
     }
 
     void sendRunningThread(BufferedReader reader, ExecutorService pool) {
         try {
             while(!this.isClosed()) {
-                if (processAndSendInputString(reader)) return;
+                if (processAndSendInputString(reader))
+                    return;
             }
         } catch (ExitClientException e) {
             this.close(true);
@@ -172,8 +166,14 @@ public class Client {
      * @param args
      */
     public static void main(String[] args) {
-        Client client = new Client(new ClientSession(1111, "localhost"));
-        client.process();
+        Client client;
+        try {
+            client = new Client(new ClientSession(1111, "localhost"));
+            client.process();
+        } catch (IOException e) {
+            System.err.println("Can't connect to server. Press Enter to exit...");
+            new java.util.Scanner(System.in).nextLine();
+        }
     }
 }
 

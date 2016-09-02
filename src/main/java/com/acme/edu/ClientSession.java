@@ -20,7 +20,7 @@ class ClientSession {
     /**
      * connects to all streams
      */
-    void createSession() {
+    void createSession() throws IOException {
         connector.connect();
     }
 

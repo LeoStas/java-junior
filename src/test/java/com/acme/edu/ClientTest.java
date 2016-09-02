@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ClientTest {
+public class ClientTest implements SysoutCaptureAndAssertionAbility {
 
     @Before
     @After
@@ -43,7 +43,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldProcessWrongCommandsCorrectly() throws ExitClientException {
+    public void shouldProcessWrongCommandsCorrectly() throws ExitClientException, IOException {
         int errorCodeReturned;
         int port = 1111;
         String host = "localhost";
@@ -54,7 +54,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldNotSendEmptyMessages () throws ExitClientException {
+    public void shouldNotSendEmptyMessages () throws ExitClientException, IOException {
         int errorCodeReturned;
         int port = 1111;
         String host = "localhost";
@@ -65,7 +65,7 @@ public class ClientTest {
     }
 
     @Test(expected = ExitClientException.class)
-    public void shouldProcessExitCommandCorrectly () throws ExitClientException {
+    public void shouldProcessExitCommandCorrectly () throws ExitClientException, IOException {
         int port = 1111;
         String host = "localhost";
         Client client = new Client (port, host);
@@ -74,7 +74,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException {
+    public void shouldProcessNonCommandConsoleInputCorrectly () throws ExitClientException, IOException {
         int port = 1111;
         int errorCodeReturned;
         String host = "localhost";
@@ -85,7 +85,7 @@ public class ClientTest {
     }
 
     @Test
-    public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException {
+    public void shouldNotAllowToSendMessageMoreThan150CharsLong() throws ExitClientException, IOException {
         int port = 1111;
         String host = "localhost";
         int errorCodeReturned;
@@ -116,6 +116,5 @@ public class ClientTest {
         String s = client.receive();
         assertEquals(s, "");
     }
-
 
 }
