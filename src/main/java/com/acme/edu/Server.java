@@ -18,7 +18,7 @@ class Server {
     private ServerSocket serverSocket;
     private volatile boolean running = true;
 
-    private Server() throws IOException {
+    Server() throws IOException {
         serverSocket = new ServerSocket(PORT);
     }
 
