@@ -65,7 +65,7 @@ public class Client {
             while (!this.isClosed()) {
                 String message;
                 if ((message = this.receive()) != null) {
-                    System.out.println(this.receive());
+                    System.out.println(message);
                 } else {
                     throw new SocketException("Can't connect to server");
                 }
