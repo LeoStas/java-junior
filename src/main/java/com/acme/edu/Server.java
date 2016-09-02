@@ -6,11 +6,16 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class Server {
     private final Set<SessionHandler> sessionHandlerSet =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
     private ServerSocket serverSocket;
+    private volatile boolean running = true;
 
     private Server() {
         try {
@@ -25,13 +30,33 @@ class Server {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        new Server().run();
+        new Server().runServer();
     }
 
-    private void run() {
+    private void runServer() {
         final int maxClientNumber = 10000;
         int curClientNumber = 0;
-        while (curClientNumber < maxClientNumber) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        ExecutorService pool = Executors.newSingleThreadExecutor();
+        pool.execute(() -> {
+            try {
+                String s = reader.readLine();
+                Pattern p = Pattern.compile("^/(\\w+)(.*)$");
+                Matcher m = p.matcher(s);
+                if(m.matches()) {
+                    if("exit".equals(m.group(1))) {
+                        running = false;
+                        Server.this.shutdownServer();
+                        pool.shutdown();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        while (running && (curClientNumber < maxClientNumber)) {
             curClientNumber++;
             try {
                 Socket client = serverSocket.accept();
@@ -42,8 +67,6 @@ class Server {
                 System.err.println("/Cannot accept client");
             }
         }
-
-        shutdownServer();
     }
 
     private synchronized void shutdownServer() {
