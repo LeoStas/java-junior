@@ -75,9 +75,9 @@ public class Client {
             printErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
             return -3;
         }
-        text = text.substring(1);
+        String textWithoutFirstSpace = text.substring(1);
         try {
-            clientSession.sendMessage(text);
+            clientSession.sendMessage(textWithoutFirstSpace);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,7 +103,6 @@ public class Client {
     }
 
     public void process() {
-//        Client client = new Client(1111, "localhost", new ClientSession(1111, "localhost"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
@@ -130,18 +129,23 @@ public class Client {
         pool.execute(() -> {
             try {
                 while(!this.isClosed()) {
-                    try {
-                        this.send(reader.readLine());
-                    } catch (IOException e) {
-                        printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
-                        return;
-                    }
+                    if (processAndSendInputString(reader)) return;
                 }
             } catch (ExitClientException e) {
                 this.close(true);
                 pool.shutdownNow();
             }
         });
+    }
+
+    private boolean processAndSendInputString(BufferedReader reader) throws ExitClientException {
+        try {
+            this.send(reader.readLine());
+        } catch (IOException e) {
+            printErrorMessageToConsole(ERROR_CAN_T_CONNECT_TO_SERVER);
+            return true;
+        }
+        return false;
     }
 
     public static void main(String[] args) {

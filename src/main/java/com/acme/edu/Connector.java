@@ -29,7 +29,7 @@ public class Connector {
      * @return Network output stream if connection is established
      * @throws IOException if connection wasn't established
      */
-    public PrintWriter getOutput() throws IOException {
+    PrintWriter getOutput() throws IOException {
         if (out == null) {
             out = new PrintWriter(
                     new BufferedWriter(
@@ -45,7 +45,7 @@ public class Connector {
         return out;
     }
 
-    public BufferedReader getInput() throws IOException {
+    BufferedReader getInput() throws IOException {
         if (in == null) {
             in = new BufferedReader(
                     new InputStreamReader(
@@ -63,14 +63,14 @@ public class Connector {
      *
      * @return true if connection is established and stream created
      */
-    public boolean isConnected() {
+    private boolean isConnected() {
         return out != null || in != null;
     }
 
     /**
      * connects to server and sets output stream
      */
-    public void connect() {
+    void connect() {
         if (isConnected()) {
             return;
         }
@@ -86,7 +86,7 @@ public class Connector {
     /**
      * closes output stream
      */
-    public void disconnect() {
+    void disconnect() {
         if (!isConnected()) {
             return;
         }
