@@ -14,7 +14,8 @@ class SessionHandler extends Thread {
     private final Socket socket;
     private final int histMsgNum = 5;
     private String user = "anonymous";
-    //private boolean startHist = false;
+    private boolean startHist = false;
+    private int lastNum = 0;
     private PrintWriter out;
     private BufferedReader in;
 
@@ -63,10 +64,13 @@ class SessionHandler extends Thread {
                     if (hasName) {
                         char com = msg.charAt(1);
                         if (com == 'e') {
+                            startHist = false;
                             break;
                         } else if (com == 's') {
-                            send(msg);
+                            startHist = false;
+                            send(msg.substring(4));
                         } else {
+                            //if (startHist)
                             //int n = history.size();
                         }
                     } else {
