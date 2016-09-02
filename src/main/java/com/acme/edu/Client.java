@@ -36,29 +36,8 @@ public class Client {
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
         Matcher m = p.matcher(message);
         if(m.matches()) {
-            switch (m.group(1)) {
-                case "snd":
-                    String text = m.group(2);
-                    if(text.length() < 2) {
-                        PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
-                        return -2;
-                    } else if (text.length() > 151) {
-                        PrintErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
-                        return -3;
-                    }
-                    text = text.substring(1);
-                    try {
-                        clientSession.sendMessage(text);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case "exit":
-                    throw new ExitClientException();
-                default:
-                    PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
-                    return -1;
-            }
+            Integer x = processInputLine(m);
+            if (x != null) return x;
         }
         else {
             PrintErrorMessageToConsole("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
@@ -66,6 +45,39 @@ public class Client {
             return -10;
         }
         return 0;
+    }
+
+    private Integer processInputLine(Matcher m) throws ExitClientException {
+        switch (m.group(1)) {
+            case "snd":
+                String text = m.group(2);
+                Integer x = processSendCommand(text);
+                if (x != null) return x;
+                break;
+            case "exit":
+                throw new ExitClientException();
+            default:
+                PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
+                return -1;
+        }
+        return null;
+    }
+
+    private Integer processSendCommand(String text) {
+        if(text.length() < 2) {
+            PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
+            return -2;
+        } else if (text.length() > 151) {
+            PrintErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
+            return -3;
+        }
+        text = text.substring(1);
+        try {
+            clientSession.sendMessage(text);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String receive() throws IOException {
