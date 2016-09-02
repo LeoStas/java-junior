@@ -225,7 +225,7 @@ public class Client {
     public static void main(String[] args) {
         Client client;
         try {
-            client = new Client(new ClientSession(666, "localhost"));
+            client = new Client(new ClientSession(49003, "localhost"));
             client.process();
         } catch (IOException e) {
             System.err.println("Can't connect to server. Press Enter to exit...");
