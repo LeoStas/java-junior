@@ -56,14 +56,19 @@ public class Client {
             while(true) {
                 System.out.print("Enter your name: ");
                 String name = reader.readLine();
-                clientSession.sendMessage(name);
-                String userOk = receive();
-                if("true".equals(userOk)) {
-                    System.out.println("\rSuccessfully connected!");
-                    userName = name;
-                    return 0;
+                name = name.trim();
+                if((name.length() > 0) && (name.length() < 20)) {
+                    clientSession.sendMessage(name);
+                    String userOk = receive();
+                    if ("true".equals(userOk)) {
+                        System.out.println("\rSuccessfully connected!");
+                        userName = name;
+                        return 0;
+                    } else {
+                        System.out.println("\rTry again!");
+                    }
                 } else {
-                    System.out.println("\rTry again!");
+                    System.err.println("Name should be max 20 characters long!!");
                 }
             }
         } catch (SocketException e) {
@@ -156,9 +161,16 @@ public class Client {
                     return -3;
                 }
                 text = "/snd " + userName + " -> " + text;
-                Integer x = sendCommand(text);
-                if (x != null)
-                    return x;
+                sendCommand(text);
+                break;
+            case "hist":
+                sendCommand("/hist");
+                break;
+            case "continue":
+                sendCommand("/continue");
+                break;
+            case "stop":
+                sendCommand("/stop");
                 break;
             case "exit":
                 sendCommand("/exit");
@@ -170,13 +182,12 @@ public class Client {
         return null;
     }
 
-    private Integer sendCommand(String text) {
+    private void sendCommand(String text) {
         try {
             clientSession.sendMessage(text);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     String receive() throws IOException {
