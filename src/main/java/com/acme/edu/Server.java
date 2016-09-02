@@ -3,6 +3,7 @@ package com.acme.edu;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -53,7 +54,8 @@ public class Server {
                         new InputStreamReader(
                                 new BufferedInputStream(
                                         socket.getInputStream()
-                                )
+                                ),
+                                StandardCharsets.UTF_16
                         )
                 );
                 out = new PrintWriter(
@@ -61,7 +63,8 @@ public class Server {
                                 new OutputStreamWriter(
                                         new BufferedOutputStream(
                                                 socket.getOutputStream()
-                                        )
+                                        ),
+                                        StandardCharsets.UTF_16
                                 )
                         )
                 );
@@ -77,11 +80,16 @@ public class Server {
                     String rcv_msg = in.readLine();
                     if (rcv_msg == null) break;
 
-                    String msg = dateFormat.format(new Date()) + rcv_msg;
-                    System.out.println(msg);
+                    String msg = "";
                     for (SessionHandler sessionHandler:sessionHandlerList) {
+                        if (sessionHandler == this) {
+                            msg = TextColor.ANSI_GREEN + dateFormat.format(new Date()) + "<- " + rcv_msg + TextColor.ANSI_RESET;
+                        } else {
+                            msg = TextColor.ANSI_CYAN + dateFormat.format(new Date()) + "-> " + rcv_msg + TextColor.ANSI_RESET;
+                        }
                         sessionHandler.send(msg);
                     }
+                    System.out.println(msg);
                 } catch (IOException e) {
                     break;
                 }

@@ -5,6 +5,7 @@ import org.apache.commons.io.input.ReaderInputStream;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Connects to remote server
@@ -38,7 +39,8 @@ public class Connector {
                         new OutputStreamWriter(
                                 new BufferedOutputStream(
                                         socket.getOutputStream()
-                                )
+                                ),
+                                StandardCharsets.UTF_16
                         )
                     )
             );
@@ -52,7 +54,8 @@ public class Connector {
                     new InputStreamReader(
                             new BufferedInputStream(
                                     socket.getInputStream()
-                            )
+                            ),
+                            StandardCharsets.UTF_16
                     )
             );
         }

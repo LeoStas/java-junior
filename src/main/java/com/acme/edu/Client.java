@@ -23,10 +23,15 @@ public class Client {
         clientSession.createSession();
     }
 
+    private static void PrintErrorMessageToConsole(String message) {
+        System.out.println(TextColor.ANSI_RED + message + TextColor.ANSI_RESET);
+    }
+
     /**
      * @param message message to send
      */
     public int send(String message) throws ExitClientException {
+        if (closed) return;
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
         Matcher m = p.matcher(message);
         if(m.matches()) {
@@ -34,10 +39,10 @@ public class Client {
                 case "snd":
                     String text = m.group(2);
                     if(text.length() < 2) {
-                        System.out.println("[EMPTY MESSAGE] Provide at least 1 character.");
+                        PrintErrorMessageToConsole("[EMPTY MESSAGE] Provide at least 1 character.");
                         return -2;
                     } else if (text.length() > 151) {
-                        System.out.println("[TOO LONG MESSAGE] Max length is 150 characters.");
+                        PrintErrorMessageToConsole("[TOO LONG MESSAGE] Max length is 150 characters.");
                         return -3;
                     }
                     text = text.substring(1);
@@ -50,12 +55,12 @@ public class Client {
                 case "exit":
                     throw new ExitClientException();
                 default:
-                    System.out.println("[WRONG COMMAND] Inapplicable command.");
+                    PrintErrorMessageToConsole("[WRONG COMMAND] Inapplicable command.");
                     return -1;
             }
         }
         else {
-            System.out.println("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
+            PrintErrorMessageToConsole("[WRONG INPUT] Your command contains a mistake." + System.lineSeparator() +
                     "[WRONG INPUT] Your message should be separated from command with space.");
             return -10;
         }
@@ -90,24 +95,26 @@ public class Client {
                     System.out.println(client.receive());
                 } catch (SocketException e) {
                     if(!e.getMessage().equals("Socket closed")) {
-                        System.out.println("[ERROR] Can't connect to server");
-                        break;
+                        PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                        client.close();
+                        return;
                     }
                 } catch (IOException e) {
-                    System.out.println("[ERROR] Can't connect to server");
-                    break;
+                    PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                    client.close();
+                    return;
                 }
             }
         });
 
         pool.execute(() -> {
             try {
-                while(true) {
+                while(!client.isClosed()) {
                     try {
                         client.send(reader.readLine());
                     } catch (IOException e) {
-                        System.out.println("[ERROR] Can't connect to server");
-                        break;
+                        PrintErrorMessageToConsole("[ERROR] Can't connect to server");
+                        return;
                     }
                 }
             } catch (ExitClientException e) {
