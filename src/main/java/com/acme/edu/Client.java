@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Client {
     private ClientSession clientSession;
     private volatile boolean closed = false;
@@ -31,7 +32,7 @@ public class Client {
      * @param message message to send
      */
     public int send(String message) throws ExitClientException {
-        if (closed) return;
+        if (closed) return -5;
         Pattern p = Pattern.compile("^/(\\w+)(.*)$");
         Matcher m = p.matcher(message);
         if(m.matches()) {
@@ -74,9 +75,11 @@ public class Client {
         return "";
     }
 
-    public synchronized void close() {
+    public synchronized void close(boolean serverAvailable) {
         closed = true;
-        clientSession.closeSession();
+        if(serverAvailable) {
+            clientSession.closeSession();
+        }
     }
 
     public boolean isClosed() {
@@ -96,12 +99,13 @@ public class Client {
                 } catch (SocketException e) {
                     if(!e.getMessage().equals("Socket closed")) {
                         PrintErrorMessageToConsole("[ERROR] Can't connect to server");
-                        client.close();
+                        client.close(false);
                         return;
                     }
                 } catch (IOException e) {
                     PrintErrorMessageToConsole("[ERROR] Can't connect to server");
-                    client.close();
+                    client.close(false);
+                    pool.shutdownNow();
                     return;
                 }
             }
@@ -118,7 +122,7 @@ public class Client {
                     }
                 }
             } catch (ExitClientException e) {
-                client.close();
+                client.close(true);
                 pool.shutdownNow();
             }
         });
