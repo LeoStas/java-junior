@@ -4,18 +4,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
-public class Server {
-    public static Set<SessionHandler> sessionHandlerList =
+class Server {
+    private final Set<SessionHandler> sessionHandlerSet =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
-
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
 
     private Server() {
         final int maxClientNumber = 10000;
@@ -23,39 +17,44 @@ public class Server {
         try (
                 ServerSocket serverSocket = new ServerSocket(1111))
         {
-            while (curClientNumber < maxClientNumber) {
-                curClientNumber++;
-                Socket client = serverSocket.accept();
-                SessionHandler sessionHandler = new SessionHandler(client);
-                sessionHandlerList.add(sessionHandler);
-                sessionHandler.start();
-            }
+                while (curClientNumber < maxClientNumber) {
+                    curClientNumber++;
+                    try {
+                        Socket client = serverSocket.accept();
+                        SessionHandler sessionHandler = new SessionHandler(client);
+                        sessionHandlerSet.add(sessionHandler);
+                        sessionHandler.start();
+                    } catch (IOException e) {
+                        System.err.println("/Cannot accept client");
+                    }
+                }
         } catch (IOException e) {
             shutdownServer();
-            e.printStackTrace();
+            System.err.println("/Cannot start service");
         }
+    }
+
+    public static void main(String[] args) {
+        new Server();
     }
 
     private synchronized void shutdownServer() {
-        for (SessionHandler sessionHandler: sessionHandlerList) {
-            sessionHandler.close();
-        }
+        sessionHandlerSet.forEach(SessionHandler::close);
     }
 
     private class SessionHandler extends Thread {
-        private Socket socket;
+        private final Socket socket;
         private PrintWriter out;
         private BufferedReader in;
 
-        public SessionHandler(Socket socket) {
+        SessionHandler(Socket socket) {
             this.socket = socket;
             try {
                 in = new BufferedReader(
                         new InputStreamReader(
                                 new BufferedInputStream(
                                         socket.getInputStream()
-                                ),
-                                StandardCharsets.UTF_8
+                                ), StandardCharsets.UTF_8
                         )
                 );
                 out = new PrintWriter(
@@ -63,34 +62,25 @@ public class Server {
                                 new OutputStreamWriter(
                                         new BufferedOutputStream(
                                                 socket.getOutputStream()
-                                        ),
-                                        StandardCharsets.UTF_8
+                                        ), StandardCharsets.UTF_8
                                 )
                         )
                 );
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("/Cannot open client socket");
             }
         }
 
+        @Override
         public void run() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
             while (true) {
                 try {
-                    String rcv_msg = in.readLine();
-                    if (rcv_msg == null) break;
-
-                    String msg = "";
-                    for (SessionHandler sessionHandler:sessionHandlerList) {
-                        if (sessionHandler == this) {
-                            //msg = TextColor.ANSI_GREEN + dateFormat.format(new Date()) + "<- " + rcv_msg + TextColor.ANSI_RESET;
-                            msg = dateFormat.format(new Date()) + "<- " + rcv_msg;
-                        } else {
-                            //msg = TextColor.ANSI_CYAN + dateFormat.format(new Date()) + "-> " + rcv_msg + TextColor.ANSI_RESET;
-                            msg = dateFormat.format(new Date()) + "-> " + rcv_msg;
-                        }
-                        sessionHandler.send(msg);
+                    String msg = in.readLine();
+                    if (msg == null) {
+                        break;
                     }
+                    send(dateFormat.format(new Date()) + msg);
                     System.out.println(msg);
                 } catch (IOException e) {
                     break;
@@ -100,21 +90,22 @@ public class Server {
             close();
         }
 
-        public synchronized void send(String msg) {
-            out.println(msg);
-            out.flush();
+        private synchronized void send(String msg) {
+            for (SessionHandler sessionHandler:sessionHandlerSet) {
+                sessionHandler.out.println(msg);
+                sessionHandler.out.flush();
+            }
         }
 
-        void close() {
-            System.out.println("Close connection");
-            System.out.println();
-            sessionHandlerList.remove(this);
+        private void close() {
+            System.err.println("/Close connection");
+            sessionHandlerSet.remove(this);
             try {
                 in.close();
                 out.close();
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("/Cannot correct close connection");
             }
         }
     }
