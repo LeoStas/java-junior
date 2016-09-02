@@ -25,7 +25,7 @@ public class Client {
     }
 
     public static void PrintErrorMessageToConsole(String message) {
-        System.out.println(TextColor.ANSI_RED + message + TextColor.ANSI_RESET);
+        System.out.println(message);
     }
 
     /**

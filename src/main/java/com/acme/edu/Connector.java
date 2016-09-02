@@ -40,7 +40,7 @@ public class Connector {
                                 new BufferedOutputStream(
                                         socket.getOutputStream()
                                 ),
-                                StandardCharsets.UTF_16
+                                StandardCharsets.UTF_8
                         )
                     )
             );
@@ -55,7 +55,7 @@ public class Connector {
                             new BufferedInputStream(
                                     socket.getInputStream()
                             ),
-                            StandardCharsets.UTF_16
+                            StandardCharsets.UTF_8
                     )
             );
         }
