@@ -15,12 +15,11 @@ class Server {
     private final Collection<SessionHandler> sessionHandlerList =
             Collections.synchronizedList(new LinkedList<SessionHandler>());
     private final Collection<String> users = Collections.synchronizedSet(new HashSet<String>());
-    private final Collection<String> history = Collections.synchronizedList(new ArrayList<>());
     private ServerSocket serverSocket;
     private volatile boolean running = true;
 
     Server() throws IOException {
-        serverSocket = new ServerSocket(1111);
+        serverSocket = new ServerSocket(49003);
     }
 
     /**
@@ -59,7 +58,7 @@ class Server {
         while (running) {
             try {
                 Socket client = serverSocket.accept();
-                SessionHandler sessionHandler = new SessionHandler(client, sessionHandlerList, users, history);
+                SessionHandler sessionHandler = new SessionHandler(client, sessionHandlerList, users);
                 sessionHandlerList.add(sessionHandler);
                 sessionHandler.start();
             } catch (IOException ignored) {}
