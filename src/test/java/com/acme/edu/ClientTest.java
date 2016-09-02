@@ -23,7 +23,7 @@ public class ClientTest implements SysoutCaptureAndAssertionAbility {
         pool.execute(() -> {
             try {
                 new Server().runServer();
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }
         });

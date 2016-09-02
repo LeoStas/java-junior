@@ -36,7 +36,7 @@ class Server {
         }
     }
 
-    private void runServer() {
+    void runServer() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         ExecutorService pool = Executors.newSingleThreadExecutor();
