@@ -9,15 +9,21 @@ import java.util.Date;
 
 class SessionHandler extends Thread {
     private final Collection<SessionHandler> sessionHandlerList;
-    private final Socket socket;
     private final Collection<String> users;
+    private final Collection<String> history;
+    private final Socket socket;
+    private final int histMsgNum = 5;
     private String user = "anonymous";
+    //private boolean startHist = false;
     private PrintWriter out;
     private BufferedReader in;
 
-    SessionHandler(Socket socket, Collection<SessionHandler> sessionHandlerList, Collection<String> users) {
+
+    SessionHandler(Socket socket, Collection<SessionHandler> sessionHandlerList, Collection<String> users,
+                   Collection<String> history) {
         this.sessionHandlerList = sessionHandlerList;
         this.users = users;
+        this.history = history;
         this.socket = socket;
         try {
             in = new BufferedReader(
@@ -55,7 +61,14 @@ class SessionHandler extends Thread {
                         break;
                     }
                     if (hasName) {
-                        send(msg);
+                        char com = msg.charAt(1);
+                        if (com == 'e') {
+                            break;
+                        } else if (com == 's') {
+                            send(msg);
+                        } else {
+                            //int n = history.size();
+                        }
                     } else {
                         if (users.add(msg)) {
                             out.println("true");
