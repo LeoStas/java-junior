@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 class Server {
-    private Set<SessionHandler> sessionHandlerList =
+    private final Set<SessionHandler> sessionHandlerSet =
             Collections.synchronizedSet(new HashSet<SessionHandler>());
 
     private Server() {
@@ -17,29 +17,33 @@ class Server {
         try (
                 ServerSocket serverSocket = new ServerSocket(1111))
         {
-            while (curClientNumber < maxClientNumber) {
-                curClientNumber++;
-                Socket client = serverSocket.accept();
-                SessionHandler sessionHandler = new SessionHandler(client);
-                sessionHandlerList.add(sessionHandler);
-                sessionHandler.start();
-            }
+                while (curClientNumber < maxClientNumber) {
+                    curClientNumber++;
+                    try {
+                        Socket client = serverSocket.accept();
+                        SessionHandler sessionHandler = new SessionHandler(client);
+                        sessionHandlerSet.add(sessionHandler);
+                        sessionHandler.start();
+                    } catch (IOException e) {
+                        System.err.println("/Cannot accept client");
+                    }
+                }
         } catch (IOException e) {
             shutdownServer();
-            e.printStackTrace();
+            System.err.println("/Cannot start service");
         }
     }
 
     public static void main(String[] args) {
-        Server server = new Server();
+        new Server();
     }
 
     private synchronized void shutdownServer() {
-        sessionHandlerList.forEach(SessionHandler::close);
+        sessionHandlerSet.forEach(SessionHandler::close);
     }
 
     private class SessionHandler extends Thread {
-        private Socket socket;
+        private final Socket socket;
         private PrintWriter out;
         private BufferedReader in;
 
@@ -63,10 +67,11 @@ class Server {
                         )
                 );
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("/Cannot open client socket");
             }
         }
 
+        @Override
         public void run() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss dd.MM.yyyy] ");
             while (true) {
@@ -86,21 +91,21 @@ class Server {
         }
 
         private synchronized void send(String msg) {
-            for (SessionHandler sessionHandler:sessionHandlerList) {
+            for (SessionHandler sessionHandler:sessionHandlerSet) {
                 sessionHandler.out.println(msg);
                 sessionHandler.out.flush();
             }
         }
 
         private void close() {
-            System.out.println("/Close connection");
-            sessionHandlerList.remove(this);
+            System.err.println("/Close connection");
+            sessionHandlerSet.remove(this);
             try {
                 in.close();
                 out.close();
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("/Cannot correct close connection");
             }
         }
     }
