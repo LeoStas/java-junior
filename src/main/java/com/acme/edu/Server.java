@@ -20,7 +20,7 @@ class Server {
     private volatile boolean running = true;
 
     Server() throws IOException {
-        serverSocket = new ServerSocket(1234);
+        serverSocket = new ServerSocket(666);
     }
 
     /**
